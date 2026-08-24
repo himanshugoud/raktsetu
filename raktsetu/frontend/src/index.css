@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- Color: clinical paper + blood crimson + ECG vital green ---- */
+  --color-bg: #f6f7f5;
+  --color-surface: #ffffff;
+  --color-ink: #14181a;
+  --color-ink-muted: #5b6560;
+  --color-ink-faint: #8b948e;
+
+  --color-crimson-50: #fdf1f0;
+  --color-crimson-100: #fbdcdc;
+  --color-crimson-400: #db4457;
+  --color-crimson-500: #c6203d;
+  --color-crimson-600: #a3172f;
+  --color-crimson-700: #7c1226;
+
+  --color-vital-50: #ecf9f2;
+  --color-vital-100: #cdf0dc;
+  --color-vital-500: #1b9e6b;
+  --color-vital-600: #157e55;
+
+  --color-amber-50: #fdf6e3;
+  --color-amber-500: #c98a00;
+  --color-amber-600: #a06e00;
+
+  --color-line: #e2e5e1;
+  --color-line-strong: #cbd0cb;
+
+  /* ---- Type ---- */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* ---- Radius / shadow, used sparingly ---- */
+  --radius-card: 14px;
+  --shadow-card: 0 1px 2px rgba(20, 24, 26, 0.04), 0 8px 24px -12px rgba(20, 24, 26, 0.12);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background: var(--color-crimson-100);
+    color: var(--color-crimson-700);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-crimson-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--color-crimson-500);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: var(--color-crimson-600);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-ink);
+    border: 1.5px solid var(--color-line-strong);
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-ink);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-crimson-600);
+  }
+  .btn-ghost:hover {
+    background: var(--color-crimson-50);
+  }
+
+  .input {
+    width: 100%;
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-line-strong);
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    transition: border-color 120ms ease;
+  }
+  .input:focus {
+    border-color: var(--color-crimson-500);
+    outline: none;
+  }
+
+  .label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    margin-bottom: 0.35rem;
+    display: block;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-crimson-600);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+  .badge-vital {
+    background: var(--color-vital-50);
+    color: var(--color-vital-600);
+  }
+  .badge-crimson {
+    background: var(--color-crimson-50);
+    color: var(--color-crimson-600);
+  }
+  .badge-amber {
+    background: var(--color-amber-50);
+    color: var(--color-amber-600);
+  }
+  .badge-muted {
+    background: var(--color-line);
+    color: var(--color-ink-muted);
+  }
+}
