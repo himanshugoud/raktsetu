@@ -30,18 +30,32 @@ export default function CreateRequest() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-  function captureLocation() {
+    function captureLocation() {
     if (!navigator.geolocation) {
       setLocStatus("error");
+      setError("Your browser doesn't support location sharing. Please try a different browser.");
       return;
     }
     setLocStatus("locating");
+    setError("");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
         setLocStatus("done");
+        setError("");
       },
-      () => setLocStatus("error"),
+      (err) => {
+        setLocStatus("error");
+        if (err.code === err.PERMISSION_DENIED) {
+          setError("Location permission was denied. Please allow location access for this site in your browser settings, then try again.");
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          setError("Your location couldn't be determined. Make sure location services are turned on for your device and browser.");
+        } else if (err.code === err.TIMEOUT) {
+          setError("Getting your location took too long. Please try again.");
+        } else {
+          setError("Something went wrong while getting your location. Please try again.");
+        }
+      },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }
