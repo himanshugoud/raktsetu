@@ -38,25 +38,36 @@ export default function CreateRequest() {
     }
     setLocStatus("locating");
     setError("");
+
+    function onError(err) {
+      setLocStatus("error");
+      if (err.code === err.PERMISSION_DENIED) {
+        setError("Location permission was denied. Please allow location access for this site in your browser settings, then try again.");
+      } else if (err.code === err.POSITION_UNAVAILABLE) {
+        setError("Your location couldn't be determined. Make sure location services are turned on for your device and browser.");
+      } else if (err.code === err.TIMEOUT) {
+        setError("Getting your location took too long. Please try again, ideally near a window or outdoors.");
+      } else {
+        setError("Something went wrong while getting your location. Please try again.");
+      }
+    }
+
+    function onSuccess(pos) {
+      setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+      setLocStatus("done");
+      setError("");
+    }
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
-        setLocStatus("done");
-        setError("");
+      onSuccess,
+      () => {
+        navigator.geolocation.getCurrentPosition(
+          onSuccess,
+          onError,
+          { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
+        );
       },
-      (err) => {
-        setLocStatus("error");
-        if (err.code === err.PERMISSION_DENIED) {
-          setError("Location permission was denied. Please allow location access for this site in your browser settings, then try again.");
-        } else if (err.code === err.POSITION_UNAVAILABLE) {
-          setError("Your location couldn't be determined. Make sure location services are turned on for your device and browser.");
-        } else if (err.code === err.TIMEOUT) {
-          setError("Getting your location took too long. Please try again.");
-        } else {
-          setError("Something went wrong while getting your location. Please try again.");
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 20000 }
     );
   }
 
