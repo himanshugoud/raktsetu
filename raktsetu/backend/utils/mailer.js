@@ -1,26 +1,12 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-let transporter = null;
+let resend = null;
 
-function getTransporter() {
-  if (!transporter) {
-    // Explicit SMTP config (rather than the "service: gmail" shortcut) —
-    // port 465 often times out on cloud hosts like Render. Port 587 with
-    // STARTTLS is far more reliable in those environments.
-    transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
-      },
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 15000,
-    });
+function getClient() {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
   }
-  return transporter;
+  return resend;
 }
 
 // Sends an urgent alert email to a single donor about a nearby compatible
@@ -58,14 +44,20 @@ Thank you for being a registered donor.
     </div>`;
 
   try {
-    const info = await getTransporter().sendMail({
-      from: `"RaktSetu Alerts" <${process.env.GMAIL_USER}>`,
+    const { data, error } = await getClient().emails.send({
+      from: process.env.RESEND_FROM || "RaktSetu Alerts <onboarding@resend.dev>",
       to,
       subject,
       text,
       html,
     });
-    console.log(`Alert email accepted by Gmail for ${to} — messageId: ${info.messageId}, response: ${info.response}`);
+
+    if (error) {
+      console.error(`Failed to send alert email to ${to}:`, error.message || error);
+      return false;
+    }
+
+    console.log(`Alert email accepted by Resend for ${to} — id: ${data?.id}`);
     return true;
   } catch (err) {
     console.error(`Failed to send alert email to ${to}:`, err.message);
