@@ -4,12 +4,20 @@ let transporter = null;
 
 function getTransporter() {
   if (!transporter) {
+    // Explicit SMTP config (rather than the "service: gmail" shortcut) —
+    // port 465 often times out on cloud hosts like Render. Port 587 with
+    // STARTTLS is far more reliable in those environments.
     transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASSWORD,
       },
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 15000,
     });
   }
   return transporter;
