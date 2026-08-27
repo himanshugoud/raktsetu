@@ -22,6 +22,8 @@ export default function Dashboard() {
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [toggling, setToggling] = useState(false);
+  const [updatingLocation, setUpdatingLocation] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
 
   useEffect(() => {
     client
@@ -39,6 +41,36 @@ export default function Dashboard() {
     } finally {
       setToggling(false);
     }
+  }
+
+  function updateLocation() {
+    if (!navigator.geolocation) {
+      setLocationMessage("Your browser doesn't support location sharing.");
+      return;
+    }
+    setUpdatingLocation(true);
+    setLocationMessage("");
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const res = await client.patch("/donors/me/location", {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          });
+          updateDonor(res.data);
+          setLocationMessage("Location updated successfully.");
+        } catch {
+          setLocationMessage("Couldn't save your new location. Please try again.");
+        } finally {
+          setUpdatingLocation(false);
+        }
+      },
+      () => {
+        setLocationMessage("Couldn't get your current location. Please try again.");
+        setUpdatingLocation(false);
+      },
+      { enableHighAccuracy: true, timeout: 20000 }
+    );
   }
 
   if (!donor) return null;
@@ -74,8 +106,18 @@ export default function Dashboard() {
             >
               {toggling ? "Updating…" : donor.available ? "Turn off" : "Turn on"}
             </button>
+            <button
+              onClick={updateLocation}
+              disabled={updatingLocation}
+              className="btn btn-secondary text-sm !py-1.5 !px-3 disabled:opacity-60"
+            >
+              {updatingLocation ? "Updating…" : "Update my location"}
+            </button>
           </div>
         </div>
+        {locationMessage && (
+          <p className="text-xs text-[var(--color-ink-muted)] mt-3">{locationMessage}</p>
+        )}
       </div>
 
       {/* History */}
