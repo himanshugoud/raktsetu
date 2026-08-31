@@ -104,6 +104,11 @@ export default function CreateRequest() {
           {result.matchedDonors.length > 0
             ? `${result.matchedDonors.length} compatible donor${result.matchedDonors.length === 1 ? "" : "s"} nearby ${result.matchedDonors.length === 1 ? "has" : "have"} been notified by email, closest first.`
             : "No compatible donors were found within range right now. Consider widening the search or contacting your local blood bank directly."}
+          {result.radiusUsedKm && result.radiusUsedKm > 10 && result.matchedDonors.length > 0 && (
+            <span className="block mt-1 text-xs">
+              No one was available within 10 km, so we widened the search to {result.radiusUsedKm} km.
+            </span>
+          )}
         </p>
 
         {result.matchedDonors.length > 0 && (
@@ -116,7 +121,10 @@ export default function CreateRequest() {
                 <div>
                   <span className="font-medium text-sm">{d.name}</span>
                   <span className="text-xs text-[var(--color-ink-faint)] ml-2 font-mono">{d.bloodType}</span>
-                  <div className="text-xs text-[var(--color-ink-muted)] mt-0.5">{d.distanceKm} km away</div>
+                  <div className="text-xs text-[var(--color-ink-muted)] mt-0.5">
+                    {d.distanceKm} km away
+                    {d.totalDonations > 0 && <> · Helped {d.totalDonations} {d.totalDonations === 1 ? "time" : "times"} before</>}
+                  </div>
                 </div>
                 {d.phone && (
                   <a

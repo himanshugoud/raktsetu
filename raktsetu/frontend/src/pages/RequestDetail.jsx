@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import client from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
+
+const POLL_INTERVAL_MS = 10000;
 
 export default function RequestDetail() {
   const { id } = useParams();
@@ -11,12 +13,43 @@ export default function RequestDetail() {
   const [error, setError] = useState("");
   const [responding, setResponding] = useState(false);
   const [responded, setResponded] = useState(null);
+  const [justAccepted, setJustAccepted] = useState(null); // name of donor who just said yes
+  const prevDonorsRef = useRef(null);
+
+  function fetchRequest() {
+    return client
+      .get(`/requests/${id}`)
+      .then((res) => {
+        const data = res.data;
+
+        // Detect a donor flipping from pending -> accepted since the last
+        // poll, so the requester gets a visible nudge instead of having to
+        // notice a quiet list change themselves.
+        if (Array.isArray(data.notifiedDonors) && prevDonorsRef.current) {
+          for (const d of data.notifiedDonors) {
+            const prev = prevDonorsRef.current.find((p) => p.donorId === d.donorId);
+            if (prev && prev.response === "pending" && d.response === "accepted") {
+              setJustAccepted(d.name);
+              setTimeout(() => setJustAccepted(null), 8000);
+            }
+          }
+        }
+        if (Array.isArray(data.notifiedDonors)) {
+          prevDonorsRef.current = data.notifiedDonors;
+        }
+
+        setRequest(data);
+      })
+      .catch((err) => setError(err.response?.data?.message || "Couldn't load this request."));
+  }
 
   useEffect(() => {
-    client
-      .get(`/requests/${id}`)
-      .then((res) => setRequest(res.data))
-      .catch((err) => setError(err.response?.data?.message || "Couldn't load this request."));
+    fetchRequest();
+    // Live-ish status updates: the requester's view quietly re-checks every
+    // few seconds so they don't have to manually refresh to see if help is
+    // on the way.
+    const interval = setInterval(fetchRequest, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
   }, [id]);
 
   async function respond(response) {
@@ -62,12 +95,21 @@ export default function RequestDetail() {
         {request.bloodType} needed at {request.hospitalName}
       </h1>
 
+      {justAccepted && (
+        <div className="rounded-xl bg-[var(--color-vital-50)] text-[var(--color-vital-700)] text-sm font-medium px-4 py-3 mb-6 text-center">
+          🎉 {justAccepted} just accepted your request!
+        </div>
+      )}
+
       <div className="card p-6 space-y-3 mb-8">
         <Row label="Patient" value={request.patientName} />
         <Row label="Units needed" value={request.unitsNeeded} />
         <Row label="Contact" value={request.contactPhone} />
         {request.notes && <Row label="Notes" value={request.notes} />}
         <Row label="Status" value={request.status.replace("_", " ")} />
+        {request.searchRadiusKm && (
+          <Row label="Search radius" value={`${request.searchRadiusKm} km`} />
+        )}
       </div>
 
       {isRequester ? (
@@ -111,7 +153,7 @@ function NotifiedDonorsList({ donors }) {
     <div>
       <h2 className="font-display text-lg font-semibold mb-1">Notified donors</h2>
       <p className="text-xs text-[var(--color-ink-muted)] mb-4">
-        Don't wait on email — call directly if this is urgent. Sorted nearest first.
+        Don't wait on email — call directly if this is urgent. Sorted nearest first. This page updates automatically.
       </p>
 
       {donors.length === 0 && (
@@ -132,11 +174,24 @@ function NotifiedDonorsList({ donors }) {
               </div>
               <div className="text-xs text-[var(--color-ink-faint)] mt-0.5">
                 {d.distanceKm.toFixed(1)} km away ·{" "}
-                {d.response === "accepted"
-                  ? "Accepted"
-                  : d.response === "declined"
-                  ? "Declined"
-                  : "Awaiting response"}
+                <span
+                  className={
+                    d.response === "accepted"
+                      ? "text-[var(--color-vital-600)] font-medium"
+                      : d.response === "declined"
+                      ? "text-[var(--color-ink-faint)]"
+                      : ""
+                  }
+                >
+                  {d.response === "accepted"
+                    ? "Accepted"
+                    : d.response === "declined"
+                    ? "Declined"
+                    : "Awaiting response"}
+                </span>
+                {d.totalDonations > 0 && (
+                  <> · Helped {d.totalDonations} {d.totalDonations === 1 ? "time" : "times"} before</>
+                )}
               </div>
             </div>
             {d.phone && (

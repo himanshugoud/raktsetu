@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import SlowServerBanner from "./components/SlowServerBanner.jsx";
 import Home from "./pages/Home.jsx";
 import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
@@ -13,6 +14,7 @@ import NotFound from "./pages/NotFound.jsx";
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
+      <SlowServerBanner />
       <Navbar />
       <main className="flex-1">
         <Routes>
