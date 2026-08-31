@@ -30,7 +30,7 @@ export default function CreateRequest() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-    function captureLocation() {
+  function captureLocation() {
     if (!navigator.geolocation) {
       setLocStatus("error");
       setError("Your browser doesn't support location sharing. Please try a different browser.");
@@ -58,9 +58,13 @@ export default function CreateRequest() {
       setError("");
     }
 
+    // First try: high accuracy (GPS), generous timeout since GPS fixes
+    // can be slow indoors.
     navigator.geolocation.getCurrentPosition(
       onSuccess,
       () => {
+        // Fallback: low accuracy (WiFi/cell-based), much faster, often
+        // succeeds indoors when GPS times out.
         navigator.geolocation.getCurrentPosition(
           onSuccess,
           onError,
@@ -104,21 +108,37 @@ export default function CreateRequest() {
 
         {result.matchedDonors.length > 0 && (
           <div className="card p-5 text-left mb-8">
+            <p className="text-xs text-[var(--color-ink-muted)] mb-3">
+              Don't wait on email — call directly if this is urgent.
+            </p>
             {result.matchedDonors.map((d) => (
-              <div key={d._id} className="flex items-center justify-between py-2 border-b border-[var(--color-line)] last:border-0">
+              <div key={d._id} className="flex items-center justify-between gap-3 py-3 border-b border-[var(--color-line)] last:border-0">
                 <div>
                   <span className="font-medium text-sm">{d.name}</span>
                   <span className="text-xs text-[var(--color-ink-faint)] ml-2 font-mono">{d.bloodType}</span>
+                  <div className="text-xs text-[var(--color-ink-muted)] mt-0.5">{d.distanceKm} km away</div>
                 </div>
-                <span className="text-xs text-[var(--color-ink-muted)]">{d.distanceKm} km away</span>
+                {d.phone && (
+                  <a
+                    href={`tel:${d.phone}`}
+                    className="btn btn-primary text-sm !py-1.5 !px-3 whitespace-nowrap"
+                  >
+                    Call {d.phone}
+                  </a>
+                )}
               </div>
             ))}
           </div>
         )}
 
-        <button onClick={() => navigate("/dashboard")} className="btn btn-primary">
-          Go to dashboard
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button onClick={() => navigate(`/requests/${result.request._id}`)} className="btn btn-secondary">
+            View request
+          </button>
+          <button onClick={() => navigate("/dashboard")} className="btn btn-primary">
+            Go to dashboard
+          </button>
+        </div>
       </div>
     );
   }

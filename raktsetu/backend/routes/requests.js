@@ -127,6 +127,7 @@ for (const d of allEligibleTypeDonors) {
     name: d.name,
     bloodType: d.bloodType,
     city: d.city,
+    phone: d.phone,
     distanceKm: Math.round(notified[i].distanceKm * 10) / 10,
   }));
 }
@@ -139,12 +140,37 @@ router.get("/", requireAuth, async (req, res) => {
 
 // GET a single request
 router.get("/:id", requireAuth, async (req, res) => {
-  const request = await BloodRequest.findById(req.params.id).populate(
-    "requestedBy",
-    "name phone"
-  );
+  const request = await BloodRequest.findById(req.params.id)
+    .populate("requestedBy", "name phone")
+    .populate("notifiedDonors.donor", "name phone bloodType");
   if (!request) return res.status(404).json({ message: "Request not found." });
-  res.json(request);
+
+  const isRequester = String(request.requestedBy?._id) === String(req.donorId);
+
+  const payload = request.toObject();
+
+  if (isRequester) {
+    // The requester can see full contact details for every notified donor,
+    // sorted nearest-first, so they can call directly instead of waiting
+    // on someone to check email.
+    payload.notifiedDonors = [...payload.notifiedDonors]
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .map((n) => ({
+        donorId: n.donor?._id,
+        name: n.donor?.name,
+        phone: n.donor?.phone,
+        bloodType: n.donor?.bloodType,
+        distanceKm: n.distanceKm,
+        response: n.response,
+      }));
+  } else {
+    // Anyone else (e.g. a donor viewing their own alert) never sees other
+    // donors' contact info — only the patient/hospital details already
+    // present on the request itself.
+    delete payload.notifiedDonors;
+  }
+
+  res.json(payload);
 });
 
 // PATCH donor accepts or declines a request they were notified about

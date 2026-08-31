@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import client from "../api/client.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function RequestDetail() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
+  const { donor } = useAuth();
   const [request, setRequest] = useState(null);
   const [error, setError] = useState("");
   const [responding, setResponding] = useState(false);
@@ -51,6 +53,8 @@ export default function RequestDetail() {
     );
   }
 
+  const isRequester = donor && String(request.requestedBy?._id) === String(donor._id);
+
   return (
     <div className="max-w-md mx-auto px-5 py-16">
       <span className="eyebrow">{request.urgency}</span>
@@ -66,30 +70,86 @@ export default function RequestDetail() {
         <Row label="Status" value={request.status.replace("_", " ")} />
       </div>
 
-      {responded ? (
-        <p className="text-center font-medium text-[var(--color-vital-600)]">
-          {responded === "accepted"
-            ? "Thanks — you've accepted. Please contact the hospital directly to coordinate."
-            : "You've declined this request. Thank you for letting us know."}
-        </p>
+      {isRequester ? (
+        <NotifiedDonorsList donors={request.notifiedDonors} />
       ) : (
-        <div className="flex gap-3">
-          <button
-            onClick={() => respond("accepted")}
-            disabled={responding}
-            className="btn btn-primary flex-1 disabled:opacity-60"
-          >
-            I can help
-          </button>
-          <button
-            onClick={() => respond("declined")}
-            disabled={responding}
-            className="btn btn-secondary flex-1 disabled:opacity-60"
-          >
-            Can't right now
-          </button>
+        <>
+          {responded ? (
+            <p className="text-center font-medium text-[var(--color-vital-600)]">
+              {responded === "accepted"
+                ? "Thanks — you've accepted. Please contact the hospital directly to coordinate."
+                : "You've declined this request. Thank you for letting us know."}
+            </p>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                onClick={() => respond("accepted")}
+                disabled={responding}
+                className="btn btn-primary flex-1 disabled:opacity-60"
+              >
+                I can help
+              </button>
+              <button
+                onClick={() => respond("declined")}
+                disabled={responding}
+                className="btn btn-secondary flex-1 disabled:opacity-60"
+              >
+                Can't right now
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function NotifiedDonorsList({ donors }) {
+  if (!donors) return null;
+
+  return (
+    <div>
+      <h2 className="font-display text-lg font-semibold mb-1">Notified donors</h2>
+      <p className="text-xs text-[var(--color-ink-muted)] mb-4">
+        Don't wait on email — call directly if this is urgent. Sorted nearest first.
+      </p>
+
+      {donors.length === 0 && (
+        <div className="card p-6 text-center text-sm text-[var(--color-ink-muted)]">
+          No compatible donors were found within range.
         </div>
       )}
+
+      <div className="space-y-3">
+        {donors.map((d) => (
+          <div key={d.donorId} className="card p-4 flex items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-semibold text-[var(--color-crimson-600)] text-sm">
+                  {d.bloodType}
+                </span>
+                <span className="font-medium text-sm">{d.name}</span>
+              </div>
+              <div className="text-xs text-[var(--color-ink-faint)] mt-0.5">
+                {d.distanceKm.toFixed(1)} km away ·{" "}
+                {d.response === "accepted"
+                  ? "Accepted"
+                  : d.response === "declined"
+                  ? "Declined"
+                  : "Awaiting response"}
+              </div>
+            </div>
+            {d.phone && (
+              <a
+                href={`tel:${d.phone}`}
+                className="btn btn-primary text-sm !py-1.5 !px-3 whitespace-nowrap"
+              >
+                Call {d.phone}
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
