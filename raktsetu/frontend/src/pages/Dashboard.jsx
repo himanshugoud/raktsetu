@@ -96,12 +96,19 @@ export default function Dashboard() {
             <div className="text-sm text-[var(--color-ink-muted)]">{donor.city} · {donor.phone}</div>
           </div>
           <div className="flex items-center gap-3">
-            <span className={`badge ${donor.available ? "badge-vital" : "badge-muted"}`}>
-              {donor.available ? "Available to donate" : "Not available"}
-            </span>
+            {donor.inCooldown ? (
+              <span className="badge badge-amber">
+                Resting until {new Date(donor.eligibleAgainAt).toLocaleDateString()}
+              </span>
+            ) : (
+              <span className={`badge ${donor.available ? "badge-vital" : "badge-muted"}`}>
+                {donor.available ? "Available to donate" : "Not available"}
+              </span>
+            )}
             <button
               onClick={toggleAvailability}
-              disabled={toggling}
+              disabled={toggling || donor.inCooldown}
+              title={donor.inCooldown ? "You're in your post-donation recovery window and won't be matched to new requests until it ends." : undefined}
               className="btn btn-secondary text-sm !py-1.5 !px-3 disabled:opacity-60"
             >
               {toggling ? "Updating…" : donor.available ? "Turn off" : "Turn on"}
@@ -115,6 +122,13 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+        {donor.inCooldown && (
+          <p className="text-xs text-[var(--color-amber-600)] mt-3">
+            Whole-blood donors need about 90 days between donations. You'll automatically start
+            receiving alerts again on {new Date(donor.eligibleAgainAt).toLocaleDateString()} — thank you for
+            recently donating.
+          </p>
+        )}
         {locationMessage && (
           <p className="text-xs text-[var(--color-ink-muted)] mt-3">{locationMessage}</p>
         )}

@@ -5,11 +5,28 @@ import requireAuth from "../middleware/auth.js";
 
 const router = express.Router();
 
+const DONATION_COOLDOWN_DAYS = 90;
+
+function withEligibility(donor) {
+  const obj = donor.toJSON ? donor.toJSON() : donor;
+  if (obj.lastDonationDate) {
+    const eligibleAgainAt = new Date(
+      new Date(obj.lastDonationDate).getTime() + DONATION_COOLDOWN_DAYS * 24 * 60 * 60 * 1000
+    );
+    obj.eligibleAgainAt = eligibleAgainAt;
+    obj.inCooldown = eligibleAgainAt > new Date();
+  } else {
+    obj.eligibleAgainAt = null;
+    obj.inCooldown = false;
+  }
+  return obj;
+}
+
 // GET current donor's profile
 router.get("/me", requireAuth, async (req, res) => {
   const donor = await Donor.findById(req.donorId);
   if (!donor) return res.status(404).json({ message: "Donor not found." });
-  res.json(donor);
+  res.json(withEligibility(donor));
 });
 
 // PATCH toggle / update availability
@@ -20,7 +37,7 @@ router.patch("/me/availability", requireAuth, async (req, res) => {
     { available: Boolean(available) },
     { new: true }
   );
-  res.json(donor);
+  res.json(withEligibility(donor));
 });
 
 // PATCH update location (e.g. donor moved cities)
@@ -37,7 +54,7 @@ router.patch("/me/location", requireAuth, async (req, res) => {
     },
     { new: true }
   );
-  res.json(donor);
+  res.json(withEligibility(donor));
 });
 
 // GET request history relevant to the logged-in donor (requests they were

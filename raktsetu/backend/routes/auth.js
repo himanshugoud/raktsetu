@@ -6,8 +6,25 @@ import { BLOOD_TYPES } from "../utils/compatibility.js";
 
 const router = express.Router();
 
+const DONATION_COOLDOWN_DAYS = 90;
+
 function signToken(donor) {
   return jwt.sign({ id: donor._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+}
+
+function withEligibility(donor) {
+  const obj = donor.toJSON ? donor.toJSON() : donor;
+  if (obj.lastDonationDate) {
+    const eligibleAgainAt = new Date(
+      new Date(obj.lastDonationDate).getTime() + DONATION_COOLDOWN_DAYS * 24 * 60 * 60 * 1000
+    );
+    obj.eligibleAgainAt = eligibleAgainAt;
+    obj.inCooldown = eligibleAgainAt > new Date();
+  } else {
+    obj.eligibleAgainAt = null;
+    obj.inCooldown = false;
+  }
+  return obj;
 }
 
 router.post("/register", async (req, res) => {
@@ -42,7 +59,7 @@ router.post("/register", async (req, res) => {
     });
 
     const token = signToken(donor);
-    res.status(201).json({ token, donor });
+    res.status(201).json({ token, donor: withEligibility(donor) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Registration failed. Please try again." });
@@ -67,7 +84,7 @@ router.post("/login", async (req, res) => {
     }
 
     const token = signToken(donor);
-    res.json({ token, donor });
+    res.json({ token, donor: withEligibility(donor) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Login failed. Please try again." });

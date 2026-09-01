@@ -87,12 +87,19 @@ router.post("/", createRequestLimiter, requireAuth, async (req, res) => {
 // emergency request shouldn't just dead-end because the first radius was
 // too small.
 const ESCALATION_STEPS_KM = [10, 25, 50, 100];
+const DONATION_COOLDOWN_DAYS = 90; // standard medical gap between whole-blood donations
 
 async function findDonorsWithin(request, radiusKm) {
   const eligibleTypes = compatibleDonorTypes(request.bloodType);
+  const cooldownCutoff = new Date(Date.now() - DONATION_COOLDOWN_DAYS * 24 * 60 * 60 * 1000);
+
   return Donor.find({
     bloodType: { $in: eligibleTypes },
     available: true,
+    // Real donors need ~90 days between whole-blood donations — someone who
+    // donated last week genuinely isn't eligible yet, so don't notify them
+    // (or anyone else) about a request they medically can't fulfil.
+    $or: [{ lastDonationDate: null }, { lastDonationDate: { $lte: cooldownCutoff } }],
     location: {
       $near: {
         $geometry: request.location,
