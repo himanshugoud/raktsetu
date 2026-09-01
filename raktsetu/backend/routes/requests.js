@@ -4,12 +4,12 @@ import BloodRequest from "../models/BloodRequest.js";
 import Donor from "../models/Donor.js";
 import requireAuth from "../middleware/auth.js";
 import { compatibleDonorTypes, BLOOD_TYPES } from "../utils/compatibility.js";
+import { distanceKm, buildRadiusSteps } from "../utils/geo.js";
 import { sendUrgentAlert } from "../utils/mailer.js";
 
 const router = express.Router();
 
 const DEFAULT_RADIUS_KM = 10;
-const EARTH_RADIUS_KM = 6371;
 
 // Basic abuse protection, scoped only to raising a new emergency request —
 // viewing/dashboard traffic is never throttled.
@@ -20,18 +20,6 @@ const createRequestLimiter = rateLimit({
   legacyHeaders: false,
   message: { message: "Too many requests raised from this network recently. Please wait a while, or call your local blood bank directly." },
 });
-
-// Haversine distance between two [lng, lat] points, in kilometers.
-function distanceKm([lng1, lat1], [lng2, lat2]) {
-  const toRad = (d) => (d * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return EARTH_RADIUS_KM * c;
-}
 
 // POST create a new emergency request, then immediately geo-match + notify
 router.post("/", createRequestLimiter, requireAuth, async (req, res) => {
@@ -114,7 +102,7 @@ async function matchAndNotify(request, requestedRadiusKm) {
 
   // Build the escalation ladder: start at whatever the requester asked for,
   // then keep widening through the standard steps that are larger than it.
-  const steps = [requestedRadiusKm, ...ESCALATION_STEPS_KM.filter((s) => s > requestedRadiusKm)];
+  const steps = buildRadiusSteps(requestedRadiusKm, ESCALATION_STEPS_KM);
 
   let donors = [];
   let radiusUsed = requestedRadiusKm;
