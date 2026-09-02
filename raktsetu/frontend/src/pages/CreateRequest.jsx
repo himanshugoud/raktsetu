@@ -20,8 +20,9 @@ export default function CreateRequest() {
     urgency: "urgent",
     notes: "",
   });
-  const [coords, setCoords] = useState(null);
+    const [coords, setCoords] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
+  const [usedDemoLocation, setUsedDemoLocation] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
@@ -30,6 +31,17 @@ export default function CreateRequest() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  // Fixed demo point (India Gate, New Delhi) with real seeded donor
+  // accounts nearby — lets anyone try the full matching flow without
+  // needing to physically be near real donors or grant location access.
+  function useDemoLocation() {
+    setCoords({ latitude: 28.6129, longitude: 77.2295 });
+    setUsedDemoLocation(true);
+    setLocStatus("done");
+    setError("");
+  }
+
+ 
   function captureLocation() {
     if (!navigator.geolocation) {
       setLocStatus("error");
@@ -52,8 +64,9 @@ export default function CreateRequest() {
       }
     }
 
-    function onSuccess(pos) {
+        function onSuccess(pos) {
       setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+      setUsedDemoLocation(false);
       setLocStatus("done");
       setError("");
     }
@@ -211,12 +224,19 @@ export default function CreateRequest() {
             onChange={(e) => update("notes", e.target.value)} placeholder="Ward number, additional context…" />
         </div>
 
-        <div>
+               <div>
           <label className="label">Hospital location</label>
           <button type="button" onClick={captureLocation} className="btn btn-secondary w-full text-sm">
             {locStatus === "locating" && "Getting location…"}
-            {locStatus === "done" && "✓ Location captured"}
+            {locStatus === "done" && !usedDemoLocation && "✓ Location captured"}
             {(locStatus === "idle" || locStatus === "error") && "Share hospital's current location"}
+          </button>
+          <button
+            type="button"
+            onClick={useDemoLocation}
+            className="w-full text-xs text-[var(--color-ink-faint)] underline mt-2"
+          >
+            {usedDemoLocation ? "✓ Using demo location (New Delhi)" : "No GPS handy? Use a demo location instead"}
           </button>
         </div>
 
