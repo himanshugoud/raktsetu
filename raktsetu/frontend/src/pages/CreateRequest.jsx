@@ -113,8 +113,11 @@ export default function CreateRequest() {
 
         {result.matchedDonors.length > 0 && (
           <div className="card p-5 text-left mb-8">
-            <p className="text-xs text-[var(--color-ink-muted)] mb-3">
+                        <p className="text-xs text-[var(--color-ink-muted)] mb-3">
               Don't wait on email — call directly if this is urgent.
+            </p>
+            <p className="text-xs text-[var(--color-ink-faint)] bg-[var(--color-crimson-50)] rounded-lg px-3 py-2 mb-3">
+              📧 Demo note: on this deployment, donor email alerts only deliver to the project's own inbox (a Resend free-tier limit, not a bug). The call list above works for every donor, so it's the reliable way to try the full flow.
             </p>
             {result.matchedDonors.map((d) => (
               <div key={d._id} className="flex items-center justify-between gap-3 py-3 border-b border-[var(--color-line)] last:border-0">

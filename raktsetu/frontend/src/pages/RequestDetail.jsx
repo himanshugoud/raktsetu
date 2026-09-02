@@ -152,8 +152,11 @@ function NotifiedDonorsList({ donors }) {
   return (
     <div>
       <h2 className="font-display text-lg font-semibold mb-1">Notified donors</h2>
-      <p className="text-xs text-[var(--color-ink-muted)] mb-4">
+            <p className="text-xs text-[var(--color-ink-muted)] mb-2">
         Don't wait on email — call directly if this is urgent. Sorted nearest first. This page updates automatically.
+      </p>
+      <p className="text-xs text-[var(--color-ink-faint)] bg-[var(--color-crimson-50)] rounded-lg px-3 py-2 mb-4">
+        📧 Demo note: donor email alerts only deliver to the project's own inbox here (a Resend free-tier limit, not a bug). This call list is the reliable way to try the full flow.
       </p>
 
       {donors.length === 0 && (
