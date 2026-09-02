@@ -12,8 +12,13 @@
 
 ## Screenshots
 
+**Homepage**
 ![Homepage](docs/screenshots/home.png)
+
+**Request flow — matched donors, callable instantly**
 ![Request flow with matched donors](docs/screenshots/request-flow.png)
+
+**Donor dashboard**
 ![Donor dashboard](docs/screenshots/dashboard.png)
 
 ## Why this exists
