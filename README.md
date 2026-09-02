@@ -12,10 +12,9 @@
 
 ## Screenshots
 
-<!-- Add 2-3 screenshots here, e.g.: -->
-<!-- ![Homepage](docs/screenshots/home.png) -->
-<!-- ![Request flow with matched donors](docs/screenshots/request-flow.png) -->
-<!-- ![Donor dashboard with cooldown status](docs/screenshots/dashboard.png) -->
+![Homepage](docs/screenshots/home.png)
+![Request flow with matched donors](docs/screenshots/request-flow.png)
+![Donor dashboard](docs/screenshots/dashboard.png)
 
 ## Why this exists
 
