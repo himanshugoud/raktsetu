@@ -91,6 +91,15 @@ npm test
 
 17 tests covering the blood-type compatibility matrix (all 8 types, both directions) and the geo-distance/radius-escalation logic, run both locally and against the deployed build.
 
+## Try the donor side too
+
+The demo-location trick above shows the requester experience. To see the donor side — the dashboard, the "Helped X times before" reliability count, and the 90-day eligibility cooldown — log in with any of these seeded demo accounts:
+
+- **Email:** `demo.donor1@example.com` (through `demo.donor10@example.com`)
+- **Password:** `Demo@1234`
+
+These are fake accounts seeded specifically for demo purposes (see `backend/scripts/seedDemoDonors.js`) — no real donor data.
+
 ## Running Locally
 
 1. Clone this repository
