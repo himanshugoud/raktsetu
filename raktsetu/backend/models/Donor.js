@@ -24,9 +24,12 @@ const donorSchema = new mongoose.Schema(
       },
     },
 
-    available: { type: Boolean, default: true },
+        available: { type: Boolean, default: true },
     lastDonationDate: { type: Date, default: null },
     totalDonations: { type: Number, default: 0 },
+
+    resetPasswordTokenHash: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
   },
   { timestamps: true }
 );

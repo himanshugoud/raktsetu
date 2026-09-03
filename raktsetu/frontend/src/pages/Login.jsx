@@ -37,10 +37,15 @@ export default function Login() {
           <input id="email" type="email" required className="input" value={email}
             onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
         </div>
-        <div>
+                <div>
           <label className="label" htmlFor="password">Password</label>
           <input id="password" type="password" required className="input" value={password}
             onChange={(e) => setPassword(e.target.value)} placeholder="Your password" />
+          <div className="text-right mt-1">
+            <Link to="/forgot-password" className="text-xs text-[var(--color-crimson-600)]">
+              Forgot password?
+            </Link>
+          </div>
         </div>
 
         {error && (
