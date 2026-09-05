@@ -1,8 +1,10 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function Navbar() {
   const { donor, logout } = useAuth();
+  const { lang, toggleLang, t } = useLanguage();
   const navigate = useNavigate();
 
   const linkClass = ({ isActive }) =>
@@ -26,17 +28,24 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7">
-          <NavLink to="/" end className={linkClass}>Home</NavLink>
+                <nav className="hidden md:flex items-center gap-7">
+          <NavLink to="/" end className={linkClass}>{t("nav_home")}</NavLink>
           {donor && (
             <>
-              <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>
-              <NavLink to="/requests/new" className={linkClass}>Request Blood</NavLink>
+              <NavLink to="/dashboard" className={linkClass}>{t("nav_dashboard")}</NavLink>
+              <NavLink to="/requests/new" className={linkClass}>{t("nav_request")}</NavLink>
             </>
           )}
         </nav>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={toggleLang}
+            className="text-xs font-mono border border-[var(--color-line)] rounded-full px-2.5 py-1 text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] hover:border-[var(--color-ink-muted)] transition-colors"
+            aria-label="Toggle language"
+          >
+            {lang === "en" ? "हिं" : "EN"}
+          </button>
           {donor ? (
             <>
               <span className="hidden sm:inline-flex badge badge-crimson font-mono">{donor.bloodType}</span>
@@ -47,13 +56,13 @@ export default function Navbar() {
                 }}
                 className="btn btn-secondary !py-2 !px-4 text-sm"
               >
-                Log out
+                {t("nav_logout")}
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="btn btn-ghost !py-2 !px-4 text-sm">Log in</Link>
-              <Link to="/register" className="btn btn-primary !py-2 !px-4 text-sm">Become a donor</Link>
+              <Link to="/login" className="btn btn-ghost !py-2 !px-4 text-sm">{t("nav_login")}</Link>
+              <Link to="/register" className="btn btn-primary !py-2 !px-4 text-sm">{t("nav_become_donor")}</Link>
             </>
           )}
         </div>
