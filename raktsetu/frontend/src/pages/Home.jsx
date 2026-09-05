@@ -5,8 +5,8 @@ import PulseLine from "../components/PulseLine.jsx";
 import CompatibilityGrid from "../components/CompatibilityGrid.jsx";
 
 export default function Home() {
-  const { donor } = useAuth();
-  const { t } = useLanguage();
+    const { donor } = useAuth();
+  const { t, lang } = useLanguage();
 
   const STEPS = [
     { n: "01", title: t("step1_title"), body: t("step1_body") },
@@ -26,7 +26,7 @@ export default function Home() {
       <section className="max-w-6xl mx-auto px-5 sm:px-8 pt-14 sm:pt-20 pb-16">
         <div className="max-w-2xl">
           <span className="eyebrow">{t("home_eyebrow")}</span>
-          <h1 className="font-display text-[2.75rem] sm:text-6xl font-semibold leading-[1.05] mt-3 text-[var(--color-ink)]">
+                    <h1 className={"font-display text-[2.75rem] sm:text-6xl font-semibold mt-3 text-[var(--color-ink)] " + (lang === "hi" ? "leading-[1.4]" : "leading-[1.05]")}>
             {t("home_headline_1")}
             <br />
             <span className="text-[var(--color-crimson-500)]">{t("home_headline_2")}</span>

@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import client from "../api/client.js";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 const BLOOD_TYPES = ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"];
-const URGENCY = [
-  { value: "critical", label: "Critical — needed now" },
-  { value: "urgent", label: "Urgent — within hours" },
-  { value: "scheduled", label: "Scheduled — planned procedure" },
-];
 
 export default function CreateRequest() {
   const navigate = useNavigate();
+  const { t, lang } = useLanguage();
+
+  const URGENCY = [
+    { value: "critical", label: t("urgency_critical") },
+    { value: "urgent", label: t("urgency_urgent") },
+    { value: "scheduled", label: t("urgency_scheduled") },
+  ];
+
   const [form, setForm] = useState({
     patientName: "",
     bloodType: "",
@@ -20,7 +24,7 @@ export default function CreateRequest() {
     urgency: "urgent",
     notes: "",
   });
-    const [coords, setCoords] = useState(null);
+  const [coords, setCoords] = useState(null);
   const [locStatus, setLocStatus] = useState("idle");
   const [usedDemoLocation, setUsedDemoLocation] = useState(false);
   const [error, setError] = useState("");
@@ -31,9 +35,6 @@ export default function CreateRequest() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-  // Fixed demo point (India Gate, New Delhi) with real seeded donor
-  // accounts nearby — lets anyone try the full matching flow without
-  // needing to physically be near real donors or grant location access.
   function useDemoLocation() {
     setCoords({ latitude: 28.6129, longitude: 77.2295 });
     setUsedDemoLocation(true);
@@ -41,7 +42,6 @@ export default function CreateRequest() {
     setError("");
   }
 
- 
   function captureLocation() {
     if (!navigator.geolocation) {
       setLocStatus("error");
@@ -64,20 +64,16 @@ export default function CreateRequest() {
       }
     }
 
-        function onSuccess(pos) {
+    function onSuccess(pos) {
       setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
       setUsedDemoLocation(false);
       setLocStatus("done");
       setError("");
     }
 
-    // First try: high accuracy (GPS), generous timeout since GPS fixes
-    // can be slow indoors.
     navigator.geolocation.getCurrentPosition(
       onSuccess,
       () => {
-        // Fallback: low accuracy (WiFi/cell-based), much faster, often
-        // succeeds indoors when GPS times out.
         navigator.geolocation.getCurrentPosition(
           onSuccess,
           onError,
@@ -106,31 +102,49 @@ export default function CreateRequest() {
     }
   }
 
+  function matchSummaryText() {
+    const n = result.matchedDonors.length;
+    if (n === 0) {
+      return lang === "hi"
+        ? "अभी इस दायरे में कोई अनुकूल दाता नहीं मिला। दायरा बढ़ाने या सीधे अपने नज़दीकी ब्लड बैंक से संपर्क करने पर विचार करें।"
+        : "No compatible donors were found within range right now. Consider widening the search or contacting your local blood bank directly.";
+    }
+    if (lang === "hi") {
+      return n + " अनुकूल दाता आपके पास सूचित किए जा चुके हैं (दूरी के अनुसार), नज़दीकी दाता पहले।";
+    }
+    return n + " compatible donor" + (n === 1 ? "" : "s") + " nearby " + (n === 1 ? "has" : "have") + " been notified by email, closest first.";
+  }
+
+  function widenedRadiusText() {
+    if (lang === "hi") {
+      return "10 किमी में कोई उपलब्ध नहीं था, इसलिए हमने खोज का दायरा " + result.radiusUsedKm + " किमी तक बढ़ा दिया।";
+    }
+    return "No one was available within 10 km, so we widened the search to " + result.radiusUsedKm + " km.";
+  }
+
   if (result) {
     return (
       <div className="max-w-lg mx-auto px-5 py-20 text-center">
         <div className="w-14 h-14 rounded-full bg-[var(--color-vital-50)] flex items-center justify-center mx-auto mb-6">
-          <span className="text-[var(--color-vital-600)] text-2xl">✓</span>
+          <span className="text-[var(--color-vital-600)] text-2xl">&#10003;</span>
         </div>
-        <h1 className="font-display text-2xl font-semibold mb-2">Request sent</h1>
+        <h1 className="font-display text-2xl font-semibold mb-2">{t("result_sent_title")}</h1>
         <p className="text-[var(--color-ink-muted)] mb-8">
-          {result.matchedDonors.length > 0
-            ? `${result.matchedDonors.length} compatible donor${result.matchedDonors.length === 1 ? "" : "s"} nearby ${result.matchedDonors.length === 1 ? "has" : "have"} been notified by email, closest first.`
-            : "No compatible donors were found within range right now. Consider widening the search or contacting your local blood bank directly."}
+          {matchSummaryText()}
           {result.radiusUsedKm && result.radiusUsedKm > 10 && result.matchedDonors.length > 0 && (
             <span className="block mt-1 text-xs">
-              No one was available within 10 km, so we widened the search to {result.radiusUsedKm} km.
+              {widenedRadiusText()}
             </span>
           )}
         </p>
 
         {result.matchedDonors.length > 0 && (
           <div className="card p-5 text-left mb-8">
-                        <p className="text-xs text-[var(--color-ink-muted)] mb-3">
-              Don't wait on email — call directly if this is urgent.
+            <p className="text-xs text-[var(--color-ink-muted)] mb-3">
+              {t("result_no_email_text")}
             </p>
             <p className="text-xs text-[var(--color-ink-faint)] bg-[var(--color-crimson-50)] rounded-lg px-3 py-2 mb-3">
-              📧 Demo note: on this deployment, donor email alerts only deliver to the project's own inbox (a Resend free-tier limit, not a bug). The call list above works for every donor, so it's the reliable way to try the full flow.
+              {t("result_demo_note")}
             </p>
             {result.matchedDonors.map((d) => (
               <div key={d._id} className="flex items-center justify-between gap-3 py-3 border-b border-[var(--color-line)] last:border-0">
@@ -138,16 +152,15 @@ export default function CreateRequest() {
                   <span className="font-medium text-sm">{d.name}</span>
                   <span className="text-xs text-[var(--color-ink-faint)] ml-2 font-mono">{d.bloodType}</span>
                   <div className="text-xs text-[var(--color-ink-muted)] mt-0.5">
-                    {d.distanceKm} km away
-                    {d.totalDonations > 0 && <> · Helped {d.totalDonations} {d.totalDonations === 1 ? "time" : "times"} before</>}
+                    {d.distanceKm} {t("km_away")}
+                    {d.totalDonations > 0 && <> &middot; {t("helped_before")} {d.totalDonations} {t("times_before")}</>}
                   </div>
                 </div>
-                {d.phone && (
-                  <a
-                    href={`tel:${d.phone}`}
+                                {d.phone && (
+                  <a href={"tel:" + d.phone}
                     className="btn btn-primary text-sm !py-1.5 !px-3 whitespace-nowrap"
                   >
-                    Call {d.phone}
+                    {t("call_word")} {d.phone}
                   </a>
                 )}
               </div>
@@ -156,11 +169,11 @@ export default function CreateRequest() {
         )}
 
         <div className="flex gap-3 justify-center">
-          <button onClick={() => navigate(`/requests/${result.request._id}`)} className="btn btn-secondary">
-            View request
+          <button onClick={() => navigate("/requests/" + result.request._id)} className="btn btn-secondary">
+            {t("result_view_request")}
           </button>
           <button onClick={() => navigate("/dashboard")} className="btn btn-primary">
-            Go to dashboard
+            {t("home_cta_dashboard")}
           </button>
         </div>
       </div>
@@ -169,49 +182,49 @@ export default function CreateRequest() {
 
   return (
     <div className="max-w-lg mx-auto px-5 py-16">
-      <span className="eyebrow">Emergency request</span>
-      <h1 className="font-display text-3xl font-semibold mt-2 mb-2">Request blood urgently</h1>
+      <span className="eyebrow">{t("request_eyebrow")}</span>
+      <h1 className="font-display text-3xl font-semibold mt-2 mb-2">{t("request_title")}</h1>
       <p className="text-[var(--color-ink-muted)] mb-8">
-        We'll instantly find compatible, available donors within 10 km and email them.
+        {t("request_subtitle")}
       </p>
 
       <form onSubmit={handleSubmit} className="card p-6 sm:p-8 space-y-5">
         <div>
-          <label className="label" htmlFor="patientName">Patient name</label>
+          <label className="label" htmlFor="patientName">{t("field_patient_name")}</label>
           <input id="patientName" required className="input" value={form.patientName}
             onChange={(e) => update("patientName", e.target.value)} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="label" htmlFor="bloodType">Blood type needed</label>
+            <label className="label" htmlFor="bloodType">{t("field_blood_type_needed")}</label>
             <select id="bloodType" required className="input font-mono" value={form.bloodType}
               onChange={(e) => update("bloodType", e.target.value)}>
-              <option value="" disabled>Select</option>
-              {BLOOD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              <option value="" disabled>{t("field_select")}</option>
+              {BLOOD_TYPES.map((bt) => <option key={bt} value={bt}>{bt}</option>)}
             </select>
           </div>
           <div>
-            <label className="label" htmlFor="unitsNeeded">Units needed</label>
+            <label className="label" htmlFor="unitsNeeded">{t("field_units_needed")}</label>
             <input id="unitsNeeded" type="number" min={1} required className="input" value={form.unitsNeeded}
               onChange={(e) => update("unitsNeeded", e.target.value)} />
           </div>
         </div>
 
         <div>
-          <label className="label" htmlFor="hospitalName">Hospital name</label>
+          <label className="label" htmlFor="hospitalName">{t("field_hospital_name")}</label>
           <input id="hospitalName" required className="input" value={form.hospitalName}
             onChange={(e) => update("hospitalName", e.target.value)} placeholder="City Hospital, Indore" />
         </div>
 
         <div>
-          <label className="label" htmlFor="contactPhone">Contact phone</label>
+          <label className="label" htmlFor="contactPhone">{t("field_contact_phone")}</label>
           <input id="contactPhone" required className="input" value={form.contactPhone}
             onChange={(e) => update("contactPhone", e.target.value)} placeholder="+91 98765 43210" />
         </div>
 
         <div>
-          <label className="label" htmlFor="urgency">Urgency</label>
+          <label className="label" htmlFor="urgency">{t("field_urgency")}</label>
           <select id="urgency" className="input" value={form.urgency}
             onChange={(e) => update("urgency", e.target.value)}>
             {URGENCY.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
@@ -219,24 +232,24 @@ export default function CreateRequest() {
         </div>
 
         <div>
-          <label className="label" htmlFor="notes">Notes (optional)</label>
+          <label className="label" htmlFor="notes">{t("field_notes")}</label>
           <textarea id="notes" className="input" rows={3} value={form.notes}
-            onChange={(e) => update("notes", e.target.value)} placeholder="Ward number, additional context…" />
+            onChange={(e) => update("notes", e.target.value)} placeholder="Ward number, additional context..." />
         </div>
 
-               <div>
-          <label className="label">Hospital location</label>
+        <div>
+          <label className="label">{t("field_hospital_location")}</label>
           <button type="button" onClick={captureLocation} className="btn btn-secondary w-full text-sm">
-            {locStatus === "locating" && "Getting location…"}
-            {locStatus === "done" && !usedDemoLocation && "✓ Location captured"}
-            {(locStatus === "idle" || locStatus === "error") && "Share hospital's current location"}
+            {locStatus === "locating" && t("loc_getting_short")}
+            {locStatus === "done" && !usedDemoLocation && t("loc_captured")}
+            {(locStatus === "idle" || locStatus === "error") && t("loc_share_hospital")}
           </button>
           <button
             type="button"
             onClick={useDemoLocation}
             className="w-full text-xs text-[var(--color-ink-faint)] underline mt-2"
           >
-            {usedDemoLocation ? "✓ Using demo location (New Delhi)" : "No GPS handy? Use a demo location instead"}
+            {usedDemoLocation ? t("demo_loc_using") : t("demo_loc_link")}
           </button>
         </div>
 
@@ -247,7 +260,7 @@ export default function CreateRequest() {
         )}
 
         <button type="submit" disabled={submitting} className="btn btn-primary w-full disabled:opacity-60">
-          {submitting ? "Finding donors…" : "Send emergency request"}
+          {submitting ? t("request_submitting") : t("request_submit")}
         </button>
       </form>
     </div>

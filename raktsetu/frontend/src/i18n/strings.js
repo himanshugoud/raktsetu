@@ -58,7 +58,113 @@ const strings = {
     en: "Registration takes under two minutes. You choose when you're available — toggle it off anytime.",
     hi: "पंजीकरण में दो मिनट से भी कम समय लगता है। आप तय करते हैं कि कब उपलब्ध रहना है — कभी भी इसे बंद करें।",
   },
-  home_cta_join: { en: "Join as a donor", hi: "दाता के रूप में जुड़ें" },
+    home_cta_join: { en: "Join as a donor", hi: "दाता के रूप में जुड़ें" },
+
+  // Shared field labels
+  field_email: { en: "Email", hi: "ईमेल" },
+  field_password: { en: "Password", hi: "पासवर्ड" },
+  field_select: { en: "Select", hi: "चुनें" },
+
+  // Login page
+  login_eyebrow: { en: "Welcome back", hi: "वापसी पर स्वागत है" },
+  login_title: { en: "Log in", hi: "लॉग इन करें" },
+  login_forgot: { en: "Forgot password?", hi: "पासवर्ड भूल गए?" },
+  login_submitting: { en: "Logging in…", hi: "लॉग इन हो रहा है…" },
+  login_new_here: { en: "New here?", hi: "नए हैं?" },
+  register_as_donor: { en: "Register as a donor", hi: "दाता के रूप में पंजीकरण करें" },
+
+  // Register page
+  register_eyebrow: { en: "Join the network", hi: "नेटवर्क से जुड़ें" },
+  field_full_name: { en: "Full name", hi: "पूरा नाम" },
+  field_phone: { en: "Phone number", hi: "फ़ोन नंबर" },
+  field_blood_type: { en: "Blood type", hi: "रक्त समूह" },
+  field_city: { en: "City", hi: "शहर" },
+  field_location: { en: "Location", hi: "स्थान" },
+  loc_getting_your: { en: "Getting your location…", hi: "आपका स्थान प्राप्त किया जा रहा है…" },
+  loc_captured: { en: "✓ Location captured", hi: "✓ स्थान दर्ज किया गया" },
+  loc_share_mine: { en: "Share my current location", hi: "मेरा वर्तमान स्थान साझा करें" },
+  loc_help_text: {
+    en: "Used only to calculate distance to emergency requests near you.",
+    hi: "केवल आपके पास के आपातकालीन अनुरोधों की दूरी नापने के लिए उपयोग किया जाता है।",
+  },
+  register_submit: { en: "Create account", hi: "खाता बनाएं" },
+  register_submitting: { en: "Creating account…", hi: "खाता बनाया जा रहा है…" },
+  register_already: { en: "Already registered?", hi: "पहले से पंजीकृत हैं?" },
+
+  // CreateRequest page
+  request_eyebrow: { en: "Emergency request", hi: "आपातकालीन अनुरोध" },
+  request_title: { en: "Request blood urgently", hi: "तुरंत रक्त का अनुरोध करें" },
+  request_subtitle: {
+    en: "We'll instantly find compatible, available donors within 10 km and email them.",
+    hi: "हम 10 किमी के भीतर अनुकूल, उपलब्ध दाताओं को तुरंत ढूंढेंगे और उन्हें ईमेल करेंगे।",
+  },
+  field_patient_name: { en: "Patient name", hi: "मरीज़ का नाम" },
+  field_blood_type_needed: { en: "Blood type needed", hi: "आवश्यक रक्त समूह" },
+  field_units_needed: { en: "Units needed", hi: "आवश्यक यूनिट" },
+  field_hospital_name: { en: "Hospital name", hi: "अस्पताल का नाम" },
+  field_contact_phone: { en: "Contact phone", hi: "संपर्क फ़ोन" },
+  field_urgency: { en: "Urgency", hi: "तात्कालिकता" },
+  urgency_critical: { en: "Critical — needed now", hi: "गंभीर — अभी आवश्यक" },
+  urgency_urgent: { en: "Urgent — within hours", hi: "अत्यावश्यक — कुछ घंटों में" },
+  urgency_scheduled: { en: "Scheduled — planned procedure", hi: "निर्धारित — योजनाबद्ध प्रक्रिया" },
+  field_notes: { en: "Notes (optional)", hi: "टिप्पणी (वैकल्पिक)" },
+  field_hospital_location: { en: "Hospital location", hi: "अस्पताल का स्थान" },
+  loc_getting_short: { en: "Getting location…", hi: "स्थान प्राप्त हो रहा है…" },
+  loc_share_hospital: { en: "Share hospital's current location", hi: "अस्पताल का वर्तमान स्थान साझा करें" },
+  demo_loc_using: {
+    en: "✓ Using demo location (New Delhi)",
+    hi: "✓ डेमो स्थान का उपयोग हो रहा है (नई दिल्ली)",
+  },
+  demo_loc_link: {
+    en: "No GPS handy? Use a demo location instead",
+    hi: "जीपीएस उपलब्ध नहीं? इसके बजाय डेमो स्थान का उपयोग करें",
+  },
+  request_submit: { en: "Send emergency request", hi: "आपातकालीन अनुरोध भेजें" },
+  request_submitting: { en: "Finding donors…", hi: "दाता खोजे जा रहे हैं…" },
+  result_sent_title: { en: "Request sent", hi: "अनुरोध भेज दिया गया" },
+  result_no_email_text: {
+    en: "Don't wait on email — call directly if this is urgent.",
+    hi: "ईमेल का इंतज़ार न करें — अगर यह अत्यावश्यक है तो सीधे कॉल करें।",
+  },
+  result_demo_note: {
+    en: "📧 Demo note: on this deployment, donor email alerts only deliver to the project's own inbox (a Resend free-tier limit, not a bug). The call list above works for every donor, so it's the reliable way to try the full flow.",
+    hi: "📧 डेमो नोट: इस डिप्लॉयमेंट पर, दाता ईमेल सूचनाएं केवल प्रोजेक्ट के अपने इनबॉक्स में पहुंचती हैं (यह Resend की मुफ़्त सीमा है, कोई बग नहीं)। ऊपर दी गई कॉल सूची हर दाता के लिए काम करती है, इसलिए यह पूरी प्रक्रिया आज़माने का भरोसेमंद तरीका है।",
+  },
+  result_view_request: { en: "View request", hi: "अनुरोध देखें" },
+  helped_before: { en: "Helped", hi: "मदद की" },
+  times_before: { en: "time(s) before", hi: "बार पहले" },
+  call_word: { en: "Call", hi: "कॉल करें" },
+  km_away: { en: "km away", hi: "किमी दूर" },
+
+  // Dashboard page
+  dashboard_eyebrow: { en: "Your dashboard", hi: "आपका डैशबोर्ड" },
+  dashboard_hi: { en: "Hi", hi: "नमस्ते" },
+  raise_request_short: { en: "Raise emergency request", hi: "आपातकालीन अनुरोध भेजें" },
+  status_available: { en: "Available to donate", hi: "दान के लिए उपलब्ध" },
+  status_not_available: { en: "Not available", hi: "उपलब्ध नहीं" },
+  resting_until: { en: "Resting until", hi: "तक विश्राम पर" },
+  btn_turn_off: { en: "Turn off", hi: "बंद करें" },
+  btn_turn_on: { en: "Turn on", hi: "चालू करें" },
+  btn_updating: { en: "Updating…", hi: "अपडेट हो रहा है…" },
+  btn_update_location: { en: "Update my location", hi: "अपना स्थान अपडेट करें" },
+  cooldown_note_prefix: {
+    en: "Whole-blood donors need about 90 days between donations. You'll automatically start receiving alerts again on",
+    hi: "पूर्ण-रक्त दाताओं को दान के बीच लगभग 90 दिन चाहिए। आपको फिर से सूचनाएं मिलनी शुरू होंगी",
+  },
+  cooldown_note_suffix: {
+    en: "— thank you for recently donating.",
+    hi: "— हाल ही में रक्तदान करने के लिए धन्यवाद।",
+  },
+  history_heading: { en: "Requests you've been notified about", hi: "जिन अनुरोधों की आपको सूचना मिली है" },
+  history_loading: { en: "Loading…", hi: "लोड हो रहा है…" },
+  history_empty: {
+    en: "No alerts yet. When a compatible request appears near you, it'll show up here.",
+    hi: "अभी तक कोई सूचना नहीं। जब आपके पास कोई अनुकूल अनुरोध आएगा, तो वह यहाँ दिखाई देगा।",
+  },
+  status_pending: { en: "Pending", hi: "लंबित" },
+  status_donors_notified: { en: "Donors notified", hi: "दाताओं को सूचित किया गया" },
+  status_fulfilled: { en: "Fulfilled", hi: "पूरा हुआ" },
+  status_expired: { en: "Expired", hi: "समाप्त" },
 };
 
 export default strings;

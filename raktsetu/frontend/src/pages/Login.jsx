@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import client from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,22 +30,22 @@ export default function Login() {
 
   return (
     <div className="max-w-md mx-auto px-5 py-20">
-      <span className="eyebrow">Welcome back</span>
-      <h1 className="font-display text-3xl font-semibold mt-2 mb-8">Log in</h1>
+      <span className="eyebrow">{t("login_eyebrow")}</span>
+      <h1 className="font-display text-3xl font-semibold mt-2 mb-8">{t("login_title")}</h1>
 
       <form onSubmit={handleSubmit} className="card p-6 sm:p-8 space-y-5">
         <div>
-          <label className="label" htmlFor="email">Email</label>
+          <label className="label" htmlFor="email">{t("field_email")}</label>
           <input id="email" type="email" required className="input" value={email}
             onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
         </div>
-                <div>
-          <label className="label" htmlFor="password">Password</label>
+        <div>
+          <label className="label" htmlFor="password">{t("field_password")}</label>
           <input id="password" type="password" required className="input" value={password}
             onChange={(e) => setPassword(e.target.value)} placeholder="Your password" />
           <div className="text-right mt-1">
             <Link to="/forgot-password" className="text-xs text-[var(--color-crimson-600)]">
-              Forgot password?
+              {t("login_forgot")}
             </Link>
           </div>
         </div>
@@ -55,12 +57,12 @@ export default function Login() {
         )}
 
         <button type="submit" disabled={submitting} className="btn btn-primary w-full disabled:opacity-60">
-          {submitting ? "Logging in…" : "Log in"}
+          {submitting ? t("login_submitting") : t("login_title")}
         </button>
 
         <p className="text-sm text-center text-[var(--color-ink-muted)]">
-          New here?{" "}
-          <Link to="/register" className="text-[var(--color-crimson-600)] font-medium">Register as a donor</Link>
+          {t("login_new_here")}{" "}
+          <Link to="/register" className="text-[var(--color-crimson-600)] font-medium">{t("register_as_donor")}</Link>
         </p>
       </form>
     </div>

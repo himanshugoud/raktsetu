@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import client from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 const STATUS_BADGE = {
   pending: "badge-muted",
@@ -10,20 +11,21 @@ const STATUS_BADGE = {
   expired: "badge-muted",
 };
 
-const STATUS_LABEL = {
-  pending: "Pending",
-  donors_notified: "Donors notified",
-  fulfilled: "Fulfilled",
-  expired: "Expired",
-};
-
 export default function Dashboard() {
   const { donor, updateDonor } = useAuth();
+  const { t } = useLanguage();
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [toggling, setToggling] = useState(false);
   const [updatingLocation, setUpdatingLocation] = useState(false);
   const [locationMessage, setLocationMessage] = useState("");
+
+  const STATUS_LABEL = {
+    pending: t("status_pending"),
+    donors_notified: t("status_donors_notified"),
+    fulfilled: t("status_fulfilled"),
+    expired: t("status_expired"),
+  };
 
   useEffect(() => {
     client
@@ -79,10 +81,10 @@ export default function Dashboard() {
     <div className="max-w-4xl mx-auto px-5 sm:px-8 py-14">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
         <div>
-          <span className="eyebrow">Your dashboard</span>
-          <h1 className="font-display text-3xl font-semibold mt-1">Hi, {donor.name.split(" ")[0]}</h1>
+          <span className="eyebrow">{t("dashboard_eyebrow")}</span>
+          <h1 className="font-display text-3xl font-semibold mt-1">{t("dashboard_hi")}, {donor.name.split(" ")[0]}</h1>
         </div>
-        <Link to="/requests/new" className="btn btn-primary">Raise emergency request</Link>
+        <Link to="/requests/new" className="btn btn-primary">{t("raise_request_short")}</Link>
       </div>
 
       {/* Profile card */}
@@ -98,11 +100,11 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             {donor.inCooldown ? (
               <span className="badge badge-amber">
-                Resting until {new Date(donor.eligibleAgainAt).toLocaleDateString()}
+                {t("resting_until")} {new Date(donor.eligibleAgainAt).toLocaleDateString()}
               </span>
             ) : (
               <span className={`badge ${donor.available ? "badge-vital" : "badge-muted"}`}>
-                {donor.available ? "Available to donate" : "Not available"}
+                {donor.available ? t("status_available") : t("status_not_available")}
               </span>
             )}
             <button
@@ -111,22 +113,20 @@ export default function Dashboard() {
               title={donor.inCooldown ? "You're in your post-donation recovery window and won't be matched to new requests until it ends." : undefined}
               className="btn btn-secondary text-sm !py-1.5 !px-3 disabled:opacity-60"
             >
-              {toggling ? "Updating…" : donor.available ? "Turn off" : "Turn on"}
+              {toggling ? t("btn_updating") : donor.available ? t("btn_turn_off") : t("btn_turn_on")}
             </button>
             <button
               onClick={updateLocation}
               disabled={updatingLocation}
               className="btn btn-secondary text-sm !py-1.5 !px-3 disabled:opacity-60"
             >
-              {updatingLocation ? "Updating…" : "Update my location"}
+              {updatingLocation ? t("btn_updating") : t("btn_update_location")}
             </button>
           </div>
         </div>
         {donor.inCooldown && (
           <p className="text-xs text-[var(--color-amber-600)] mt-3">
-            Whole-blood donors need about 90 days between donations. You'll automatically start
-            receiving alerts again on {new Date(donor.eligibleAgainAt).toLocaleDateString()} — thank you for
-            recently donating.
+            {t("cooldown_note_prefix")} {new Date(donor.eligibleAgainAt).toLocaleDateString()} {t("cooldown_note_suffix")}
           </p>
         )}
         {locationMessage && (
@@ -136,16 +136,16 @@ export default function Dashboard() {
 
       {/* History */}
       <div>
-        <h2 className="font-display text-xl font-semibold mb-4">Requests you've been notified about</h2>
+        <h2 className="font-display text-xl font-semibold mb-4">{t("history_heading")}</h2>
 
         {loadingHistory && (
-          <div className="card p-8 text-center text-[var(--color-ink-muted)] text-sm">Loading…</div>
+          <div className="card p-8 text-center text-[var(--color-ink-muted)] text-sm">{t("history_loading")}</div>
         )}
 
         {!loadingHistory && history.length === 0 && (
           <div className="card p-8 text-center">
             <p className="text-[var(--color-ink-muted)] text-sm">
-              No alerts yet. When a compatible request appears near you, it'll show up here.
+              {t("history_empty")}
             </p>
           </div>
         )}
@@ -159,7 +159,7 @@ export default function Dashboard() {
                   <span className="text-sm font-medium">{h.hospitalName}</span>
                 </div>
                 <div className="text-xs text-[var(--color-ink-faint)] mt-1">
-                  {h.distanceKm != null ? `${h.distanceKm.toFixed(1)} km away` : ""} ·{" "}
+                  {h.distanceKm != null ? `${h.distanceKm.toFixed(1)} ${t("km_away")}` : ""} ·{" "}
                   {new Date(h.createdAt).toLocaleDateString()}
                 </div>
               </div>
