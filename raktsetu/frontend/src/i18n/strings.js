@@ -25,7 +25,8 @@ const strings = {
   // Home — vitals strip
   vital_blood_types: { en: "Blood types tracked", hi: "रक्त समूह कवर किए गए" },
   vital_radius: { en: "Match radius", hi: "मिलान दायरा" },
-  vital_alert_time: { en: "Avg. alert time", hi: "औसत सूचना समय" },
+   vital_alert_time: { en: "Avg. alert time", hi: "औसत सूचना समय" },
+  vital_registered_donors: { en: "Registered donors", hi: "पंजीकृत दाता" },
 
   // Home — how it works
   home_how_it_works: { en: "How it works", hi: "यह कैसे काम करता है" },

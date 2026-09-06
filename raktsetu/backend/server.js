@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import donorRoutes from "./routes/donors.js";
 import requestRoutes from "./routes/requests.js";
+import statsRoutes from "./routes/stats.js";
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.get("/api/health", (_req, res) => res.json({ ok: true, service: "raktsetu-ap
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/donors", donorRoutes);
 app.use("/api/requests", requestRoutes); // rate limit for POST / lives inside requests.js itself
+app.use("/api/stats", statsRoutes);
 
 // Fallback 404
 app.use((req, res) => res.status(404).json({ message: "Route not found." }));

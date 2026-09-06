@@ -1,12 +1,22 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import client from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import PulseLine from "../components/PulseLine.jsx";
 import CompatibilityGrid from "../components/CompatibilityGrid.jsx";
 
 export default function Home() {
-    const { donor } = useAuth();
+  const { donor } = useAuth();
   const { t, lang } = useLanguage();
+  const [donorCount, setDonorCount] = useState(null);
+
+  useEffect(() => {
+    client
+      .get("/stats")
+      .then((res) => setDonorCount(res.data.donorCount))
+      .catch(() => {}); // homepage still works fine without this — just falls back below
+  }, []);
 
   const STEPS = [
     { n: "01", title: t("step1_title"), body: t("step1_body") },
@@ -14,10 +24,10 @@ export default function Home() {
     { n: "03", title: t("step3_title"), body: t("step3_body") },
   ];
 
-  const VITALS = [
+   const VITALS = [
     { label: t("vital_blood_types"), value: "8" },
     { label: t("vital_radius"), value: "10 km" },
-    { label: t("vital_alert_time"), value: "< 30 sec" },
+    { label: t("vital_registered_donors"), value: donorCount !== null ? String(donorCount) : "—" },
   ];
 
   return (
