@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   function updateLocation() {
     if (!navigator.geolocation) {
-      setLocationMessage("Your browser doesn't support location sharing.");
+            setLocationMessage(t("err_geo_unsupported_dashboard"));
       return;
     }
     setUpdatingLocation(true);
@@ -60,15 +60,15 @@ export default function Dashboard() {
             longitude: pos.coords.longitude,
           });
           updateDonor(res.data);
-          setLocationMessage("Location updated successfully.");
-        } catch {
-          setLocationMessage("Couldn't save your new location. Please try again.");
+                   setLocationMessage(t("location_updated_success"));
+               } catch {
+          setLocationMessage(t("err_location_save_failed"));
         } finally {
           setUpdatingLocation(false);
         }
       },
       () => {
-        setLocationMessage("Couldn't get your current location. Please try again.");
+             setLocationMessage(t("err_location_get_failed"));
         setUpdatingLocation(false);
       },
       { enableHighAccuracy: true, timeout: 20000 }
@@ -110,7 +110,7 @@ export default function Dashboard() {
             <button
               onClick={toggleAvailability}
               disabled={toggling || donor.inCooldown}
-              title={donor.inCooldown ? "You're in your post-donation recovery window and won't be matched to new requests until it ends." : undefined}
+                           title={donor.inCooldown ? t("cooldown_tooltip") : undefined}
               className="btn btn-secondary text-sm !py-1.5 !px-3 disabled:opacity-60"
             >
               {toggling ? t("btn_updating") : donor.available ? t("btn_turn_off") : t("btn_turn_on")}

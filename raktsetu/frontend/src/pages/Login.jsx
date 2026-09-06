@@ -22,7 +22,7 @@ export default function Login() {
       login(res.data.token, res.data.donor);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+            setError(err.response?.data?.message || t("err_login_failed"));
     } finally {
       setSubmitting(false);
     }

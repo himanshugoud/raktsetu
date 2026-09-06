@@ -31,8 +31,7 @@ export default function Register() {
   function captureLocation() {
     if (!navigator.geolocation) {
       setLocStatus("error");
-      setError("Your browser doesn't support geolocation. Location is required to match you to nearby requests.");
-      return;
+           setError(t("err_geo_unsupported_register"));
     }
     setLocStatus("locating");
     navigator.geolocation.getCurrentPosition(
@@ -41,8 +40,8 @@ export default function Register() {
         setLocStatus("done");
       },
       () => {
-        setLocStatus("error");
-        setError("Couldn't get your location. Please allow location access and try again.");
+                setLocStatus("error");
+        setError(t("err_geo_failed_register"));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -53,7 +52,7 @@ export default function Register() {
     setError("");
 
     if (!coords) {
-      setError("Please share your location so we can match you to nearby requests.");
+           setError(t("err_no_coords_register"));
       return;
     }
 
@@ -63,7 +62,7 @@ export default function Register() {
       login(res.data.token, res.data.donor);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+           setError(err.response?.data?.message || t("err_registration_failed"));
     } finally {
       setSubmitting(false);
     }

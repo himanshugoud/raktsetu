@@ -164,7 +164,122 @@ const strings = {
   status_pending: { en: "Pending", hi: "लंबित" },
   status_donors_notified: { en: "Donors notified", hi: "दाताओं को सूचित किया गया" },
   status_fulfilled: { en: "Fulfilled", hi: "पूरा हुआ" },
-  status_expired: { en: "Expired", hi: "समाप्त" },
+   status_expired: { en: "Expired", hi: "समाप्त" },
+
+  // RequestDetail page
+  row_patient: { en: "Patient", hi: "मरीज़" },
+  row_units_needed: { en: "Units needed", hi: "आवश्यक यूनिट" },
+  row_contact: { en: "Contact", hi: "संपर्क" },
+  row_notes: { en: "Notes", hi: "टिप्पणी" },
+  row_status: { en: "Status", hi: "स्थिति" },
+  row_search_radius: { en: "Search radius", hi: "खोज दायरा" },
+  accepted_thanks: {
+    en: "Thanks — you've accepted. Please contact the hospital directly to coordinate.",
+    hi: "धन्यवाद — आपने स्वीकार कर लिया है। कृपया समन्वय के लिए सीधे अस्पताल से संपर्क करें।",
+  },
+  declined_thanks: {
+    en: "You've declined this request. Thank you for letting us know.",
+    hi: "आपने यह अनुरोध अस्वीकार कर दिया है। हमें बताने के लिए धन्यवाद।",
+  },
+  btn_i_can_help: { en: "I can help", hi: "मैं मदद कर सकता हूं" },
+  btn_cant_now: { en: "Can't right now", hi: "अभी नहीं कर सकता" },
+  notified_donors_heading: { en: "Notified donors", hi: "सूचित किए गए दाता" },
+  notified_donors_note: {
+    en: "Don't wait on email — call directly if this is urgent. Sorted nearest first. This page updates automatically.",
+    hi: "ईमेल का इंतज़ार न करें — अगर यह अत्यावश्यक है तो सीधे कॉल करें। दूरी के अनुसार क्रमबद्ध। यह पेज अपने आप अपडेट होता है।",
+  },
+  notified_donors_demo_note: {
+    en: "📧 Demo note: donor email alerts only deliver to the project's own inbox here (a Resend free-tier limit, not a bug). This call list is the reliable way to try the full flow.",
+    hi: "📧 डेमो नोट: यहां दाता ईमेल सूचनाएं केवल प्रोजेक्ट के अपने इनबॉक्स में पहुंचती हैं (यह Resend की मुफ़्त सीमा है, कोई बग नहीं)। यह कॉल सूची पूरी प्रक्रिया आज़माने का भरोसेमंद तरीका है।",
+  },
+  no_donors_in_range: {
+    en: "No compatible donors were found within range.",
+    hi: "इस दायरे में कोई अनुकूल दाता नहीं मिला।",
+  },
+  donor_accepted_status: { en: "Accepted", hi: "स्वीकार किया" },
+  donor_declined_status: { en: "Declined", hi: "अस्वीकार किया" },
+  donor_awaiting_status: { en: "Awaiting response", hi: "प्रतिक्रिया की प्रतीक्षा है" },
+
+  // ForgotPassword / ResetPassword
+  locked_out: { en: "Locked out?", hi: "लॉक हो गए?" },
+  reset_password_title: { en: "Reset your password", hi: "अपना पासवर्ड रीसेट करें" },
+  sending_link: { en: "Sending…", hi: "भेजा जा रहा है…" },
+  send_reset_link: { en: "Send reset link", hi: "रीसेट लिंक भेजें" },
+  remembered_it: { en: "Remembered it?", hi: "याद आ गया?" },
+  almost_there: { en: "Almost there", hi: "लगभग हो गया" },
+  choose_new_password: { en: "Choose a new password", hi: "नया पासवर्ड चुनें" },
+  field_new_password: { en: "New password", hi: "नया पासवर्ड" },
+  field_confirm_password: { en: "Confirm new password", hi: "नए पासवर्ड की पुष्टि करें" },
+  saving_password: { en: "Saving…", hi: "सहेजा जा रहा है…" },
+  save_new_password: { en: "Save new password", hi: "नया पासवर्ड सहेजें" },
+  reset_link_incomplete: {
+    en: "This reset link looks incomplete. Please request a new one from the",
+    hi: "यह रीसेट लिंक अधूरा लग रहा है। कृपया यहां से एक नया अनुरोध करें",
+  },
+  forgot_password_page_link: { en: "forgot password page", hi: "पासवर्ड भूल गए पेज" },
+
+  // Geolocation / form error messages (shared across Register, CreateRequest, Dashboard)
+  err_geo_unsupported_register: {
+    en: "Your browser doesn't support geolocation. Location is required to match you to nearby requests.",
+    hi: "आपका ब्राउज़र जियोलोकेशन का समर्थन नहीं करता। नज़दीकी अनुरोधों से मिलान के लिए स्थान आवश्यक है।",
+  },
+  err_geo_failed_register: {
+    en: "Couldn't get your location. Please allow location access and try again.",
+    hi: "आपका स्थान प्राप्त नहीं हो सका। कृपया स्थान एक्सेस की अनुमति दें और फिर से प्रयास करें।",
+  },
+  err_no_coords_register: {
+    en: "Please share your location so we can match you to nearby requests.",
+    hi: "कृपया अपना स्थान साझा करें ताकि हम आपको नज़दीकी अनुरोधों से जोड़ सकें।",
+  },
+  err_registration_failed: { en: "Registration failed. Please try again.", hi: "पंजीकरण विफल रहा। कृपया फिर से प्रयास करें।" },
+  err_login_failed: { en: "Login failed. Please try again.", hi: "लॉग इन विफल रहा। कृपया फिर से प्रयास करें।" },
+
+  err_geo_unsupported_request: {
+    en: "Your browser doesn't support location sharing. Please try a different browser.",
+    hi: "आपका ब्राउज़र स्थान साझा करने का समर्थन नहीं करता। कृपया कोई दूसरा ब्राउज़र आज़माएं।",
+  },
+  err_geo_denied: {
+    en: "Location permission was denied. Please allow location access for this site in your browser settings, then try again.",
+    hi: "स्थान की अनुमति अस्वीकार कर दी गई। कृपया अपने ब्राउज़र सेटिंग्स में इस साइट के लिए स्थान एक्सेस की अनुमति दें, फिर पुनः प्रयास करें।",
+  },
+  err_geo_unavailable: {
+    en: "Your location couldn't be determined. Make sure location services are turned on for your device and browser.",
+    hi: "आपका स्थान निर्धारित नहीं हो सका। सुनिश्चित करें कि आपके डिवाइस और ब्राउज़र के लिए स्थान सेवाएं चालू हैं।",
+  },
+  err_geo_timeout: {
+    en: "Getting your location took too long. Please try again, ideally near a window or outdoors.",
+    hi: "आपका स्थान प्राप्त करने में बहुत समय लगा। कृपया फिर से प्रयास करें, संभवतः खिड़की के पास या बाहर।",
+  },
+  err_geo_generic: {
+    en: "Something went wrong while getting your location. Please try again.",
+    hi: "आपका स्थान प्राप्त करते समय कुछ गलत हो गया। कृपया फिर से प्रयास करें।",
+  },
+  err_no_coords_request: {
+    en: "Please share the hospital's location so we can find nearby donors.",
+    hi: "कृपया अस्पताल का स्थान साझा करें ताकि हम नज़दीकी दाता ढूंढ सकें।",
+  },
+  err_request_submit_failed: {
+    en: "Could not submit request. Please try again.",
+    hi: "अनुरोध सबमिट नहीं हो सका। कृपया फिर से प्रयास करें।",
+  },
+
+  err_geo_unsupported_dashboard: {
+    en: "Your browser doesn't support location sharing.",
+    hi: "आपका ब्राउज़र स्थान साझा करने का समर्थन नहीं करता।",
+  },
+  location_updated_success: { en: "Location updated successfully.", hi: "स्थान सफलतापूर्वक अपडेट किया गया।" },
+  err_location_save_failed: {
+    en: "Couldn't save your new location. Please try again.",
+    hi: "आपका नया स्थान सहेजा नहीं जा सका। कृपया फिर से प्रयास करें।",
+  },
+  err_location_get_failed: {
+    en: "Couldn't get your current location. Please try again.",
+    hi: "आपका वर्तमान स्थान प्राप्त नहीं हो सका। कृपया फिर से प्रयास करें।",
+  },
+  cooldown_tooltip: {
+    en: "You're in your post-donation recovery window and won't be matched to new requests until it ends.",
+    hi: "आप अपनी दान-पश्चात रिकवरी अवधि में हैं और इसके समाप्त होने तक नए अनुरोधों से मेल नहीं खाएंगे।",
+  },
 };
 
 export default strings;

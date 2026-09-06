@@ -45,7 +45,7 @@ export default function CreateRequest() {
   function captureLocation() {
     if (!navigator.geolocation) {
       setLocStatus("error");
-      setError("Your browser doesn't support location sharing. Please try a different browser.");
+      setError(t("err_geo_unsupported_request"));
       return;
     }
     setLocStatus("locating");
@@ -54,13 +54,13 @@ export default function CreateRequest() {
     function onError(err) {
       setLocStatus("error");
       if (err.code === err.PERMISSION_DENIED) {
-        setError("Location permission was denied. Please allow location access for this site in your browser settings, then try again.");
+        setError(t("err_geo_denied"));
       } else if (err.code === err.POSITION_UNAVAILABLE) {
-        setError("Your location couldn't be determined. Make sure location services are turned on for your device and browser.");
+        setError(t("err_geo_unavailable"));
       } else if (err.code === err.TIMEOUT) {
-        setError("Getting your location took too long. Please try again, ideally near a window or outdoors.");
+        setError(t("err_geo_timeout"));
       } else {
-        setError("Something went wrong while getting your location. Please try again.");
+        setError(t("err_geo_generic"));
       }
     }
 
@@ -88,7 +88,7 @@ export default function CreateRequest() {
     e.preventDefault();
     setError("");
     if (!coords) {
-      setError("Please share the hospital's location so we can find nearby donors.");
+      setError(t("err_no_coords_request"));
       return;
     }
     setSubmitting(true);
@@ -96,12 +96,14 @@ export default function CreateRequest() {
       const res = await client.post("/requests", { ...form, ...coords });
       setResult(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Could not submit request. Please try again.");
+      setError(err.response?.data?.message || t("err_request_submit_failed"));
     } finally {
       setSubmitting(false);
     }
   }
 
+  // Dynamic, count-dependent sentences are built here rather than through
+  // the static t() dictionary, since pluralization needs real logic.
   function matchSummaryText() {
     const n = result.matchedDonors.length;
     if (n === 0) {
@@ -110,23 +112,23 @@ export default function CreateRequest() {
         : "No compatible donors were found within range right now. Consider widening the search or contacting your local blood bank directly.";
     }
     if (lang === "hi") {
-      return n + " अनुकूल दाता आपके पास सूचित किए जा चुके हैं (दूरी के अनुसार), नज़दीकी दाता पहले।";
+      return `${n} अनुकूल दाता आपके पास सूचित किए जा चुके हैं (दूरी के अनुसार), नज़दीकी दाता पहले।`;
     }
-    return n + " compatible donor" + (n === 1 ? "" : "s") + " nearby " + (n === 1 ? "has" : "have") + " been notified by email, closest first.";
+    return `${n} compatible donor${n === 1 ? "" : "s"} nearby ${n === 1 ? "has" : "have"} been notified by email, closest first.`;
   }
 
   function widenedRadiusText() {
     if (lang === "hi") {
-      return "10 किमी में कोई उपलब्ध नहीं था, इसलिए हमने खोज का दायरा " + result.radiusUsedKm + " किमी तक बढ़ा दिया।";
+      return `10 किमी में कोई उपलब्ध नहीं था, इसलिए हमने खोज का दायरा ${result.radiusUsedKm} किमी तक बढ़ा दिया।`;
     }
-    return "No one was available within 10 km, so we widened the search to " + result.radiusUsedKm + " km.";
+    return `No one was available within 10 km, so we widened the search to ${result.radiusUsedKm} km.`;
   }
 
   if (result) {
     return (
       <div className="max-w-lg mx-auto px-5 py-20 text-center">
         <div className="w-14 h-14 rounded-full bg-[var(--color-vital-50)] flex items-center justify-center mx-auto mb-6">
-          <span className="text-[var(--color-vital-600)] text-2xl">&#10003;</span>
+          <span className="text-[var(--color-vital-600)] text-2xl">✓</span>
         </div>
         <h1 className="font-display text-2xl font-semibold mb-2">{t("result_sent_title")}</h1>
         <p className="text-[var(--color-ink-muted)] mb-8">
@@ -153,10 +155,10 @@ export default function CreateRequest() {
                   <span className="text-xs text-[var(--color-ink-faint)] ml-2 font-mono">{d.bloodType}</span>
                   <div className="text-xs text-[var(--color-ink-muted)] mt-0.5">
                     {d.distanceKm} {t("km_away")}
-                    {d.totalDonations > 0 && <> &middot; {t("helped_before")} {d.totalDonations} {t("times_before")}</>}
+                    {d.totalDonations > 0 && <> · {t("helped_before")} {d.totalDonations} {t("times_before")}</>}
                   </div>
                 </div>
-                                {d.phone && (
+                {d.phone && (
                   <a href={"tel:" + d.phone}
                     className="btn btn-primary text-sm !py-1.5 !px-3 whitespace-nowrap"
                   >
@@ -169,7 +171,7 @@ export default function CreateRequest() {
         )}
 
         <div className="flex gap-3 justify-center">
-          <button onClick={() => navigate("/requests/" + result.request._id)} className="btn btn-secondary">
+          <button onClick={() => navigate(`/requests/${result.request._id}`)} className="btn btn-secondary">
             {t("result_view_request")}
           </button>
           <button onClick={() => navigate("/dashboard")} className="btn btn-primary">
@@ -234,7 +236,7 @@ export default function CreateRequest() {
         <div>
           <label className="label" htmlFor="notes">{t("field_notes")}</label>
           <textarea id="notes" className="input" rows={3} value={form.notes}
-            onChange={(e) => update("notes", e.target.value)} placeholder="Ward number, additional context..." />
+            onChange={(e) => update("notes", e.target.value)} placeholder="Ward number, additional context…" />
         </div>
 
         <div>

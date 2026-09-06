@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import client from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 const POLL_INTERVAL_MS = 10000;
 
@@ -9,22 +10,20 @@ export default function RequestDetail() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const { donor } = useAuth();
+  const { t, lang } = useLanguage();
   const [request, setRequest] = useState(null);
   const [error, setError] = useState("");
   const [responding, setResponding] = useState(false);
   const [responded, setResponded] = useState(null);
-  const [justAccepted, setJustAccepted] = useState(null); // name of donor who just said yes
+  const [justAccepted, setJustAccepted] = useState(null);
   const prevDonorsRef = useRef(null);
 
   function fetchRequest() {
     return client
-      .get(`/requests/${id}`)
+      .get("/requests/" + id)
       .then((res) => {
         const data = res.data;
 
-        // Detect a donor flipping from pending -> accepted since the last
-        // poll, so the requester gets a visible nudge instead of having to
-        // notice a quiet list change themselves.
         if (Array.isArray(data.notifiedDonors) && prevDonorsRef.current) {
           for (const d of data.notifiedDonors) {
             const prev = prevDonorsRef.current.find((p) => p.donorId === d.donorId);
@@ -45,9 +44,6 @@ export default function RequestDetail() {
 
   useEffect(() => {
     fetchRequest();
-    // Live-ish status updates: the requester's view quietly re-checks every
-    // few seconds so they don't have to manually refresh to see if help is
-    // on the way.
     const interval = setInterval(fetchRequest, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [id]);
@@ -55,7 +51,7 @@ export default function RequestDetail() {
   async function respond(response) {
     setResponding(true);
     try {
-      await client.patch(`/requests/${id}/respond`, { response });
+      await client.patch("/requests/" + id + "/respond", { response });
       setResponded(response);
     } catch (err) {
       setError(err.response?.data?.message || "Couldn't submit your response.");
@@ -92,35 +88,33 @@ export default function RequestDetail() {
     <div className="max-w-md mx-auto px-5 py-16">
       <span className="eyebrow">{request.urgency}</span>
       <h1 className="font-display text-3xl font-semibold mt-2 mb-6">
-        {request.bloodType} needed at {request.hospitalName}
+        {request.bloodType} {lang === "hi" ? "की ज़रूरत है" : "needed at"} {request.hospitalName}
       </h1>
 
       {justAccepted && (
         <div className="rounded-xl bg-[var(--color-vital-50)] text-[var(--color-vital-700)] text-sm font-medium px-4 py-3 mb-6 text-center">
-          🎉 {justAccepted} just accepted your request!
+          {"🎉 "}{justAccepted}{lang === "hi" ? " ने अभी आपका अनुरोध स्वीकार किया!" : " just accepted your request!"}
         </div>
       )}
 
       <div className="card p-6 space-y-3 mb-8">
-        <Row label="Patient" value={request.patientName} />
-        <Row label="Units needed" value={request.unitsNeeded} />
-        <Row label="Contact" value={request.contactPhone} />
-        {request.notes && <Row label="Notes" value={request.notes} />}
-        <Row label="Status" value={request.status.replace("_", " ")} />
+        <Row label={t("row_patient")} value={request.patientName} />
+        <Row label={t("row_units_needed")} value={request.unitsNeeded} />
+        <Row label={t("row_contact")} value={request.contactPhone} />
+        {request.notes && <Row label={t("row_notes")} value={request.notes} />}
+        <Row label={t("row_status")} value={request.status.replace("_", " ")} />
         {request.searchRadiusKm && (
-          <Row label="Search radius" value={`${request.searchRadiusKm} km`} />
+          <Row label={t("row_search_radius")} value={request.searchRadiusKm + " km"} />
         )}
       </div>
 
       {isRequester ? (
-        <NotifiedDonorsList donors={request.notifiedDonors} />
+        <NotifiedDonorsList donors={request.notifiedDonors} t={t} />
       ) : (
         <>
           {responded ? (
             <p className="text-center font-medium text-[var(--color-vital-600)]">
-              {responded === "accepted"
-                ? "Thanks — you've accepted. Please contact the hospital directly to coordinate."
-                : "You've declined this request. Thank you for letting us know."}
+              {responded === "accepted" ? t("accepted_thanks") : t("declined_thanks")}
             </p>
           ) : (
             <div className="flex gap-3">
@@ -129,14 +123,14 @@ export default function RequestDetail() {
                 disabled={responding}
                 className="btn btn-primary flex-1 disabled:opacity-60"
               >
-                I can help
+                {t("btn_i_can_help")}
               </button>
               <button
                 onClick={() => respond("declined")}
                 disabled={responding}
                 className="btn btn-secondary flex-1 disabled:opacity-60"
               >
-                Can't right now
+                {t("btn_cant_now")}
               </button>
             </div>
           )}
@@ -146,22 +140,22 @@ export default function RequestDetail() {
   );
 }
 
-function NotifiedDonorsList({ donors }) {
+function NotifiedDonorsList({ donors, t }) {
   if (!donors) return null;
 
   return (
     <div>
-      <h2 className="font-display text-lg font-semibold mb-1">Notified donors</h2>
-            <p className="text-xs text-[var(--color-ink-muted)] mb-2">
-        Don't wait on email — call directly if this is urgent. Sorted nearest first. This page updates automatically.
+      <h2 className="font-display text-lg font-semibold mb-1">{t("notified_donors_heading")}</h2>
+      <p className="text-xs text-[var(--color-ink-muted)] mb-2">
+        {t("notified_donors_note")}
       </p>
       <p className="text-xs text-[var(--color-ink-faint)] bg-[var(--color-crimson-50)] rounded-lg px-3 py-2 mb-4">
-        📧 Demo note: donor email alerts only deliver to the project's own inbox here (a Resend free-tier limit, not a bug). This call list is the reliable way to try the full flow.
+        {t("notified_donors_demo_note")}
       </p>
 
       {donors.length === 0 && (
         <div className="card p-6 text-center text-sm text-[var(--color-ink-muted)]">
-          No compatible donors were found within range.
+          {t("no_donors_in_range")}
         </div>
       )}
 
@@ -176,7 +170,7 @@ function NotifiedDonorsList({ donors }) {
                 <span className="font-medium text-sm">{d.name}</span>
               </div>
               <div className="text-xs text-[var(--color-ink-faint)] mt-0.5">
-                {d.distanceKm.toFixed(1)} km away ·{" "}
+                {d.distanceKm.toFixed(1)} {t("km_away")} &middot;{" "}
                 <span
                   className={
                     d.response === "accepted"
@@ -187,22 +181,21 @@ function NotifiedDonorsList({ donors }) {
                   }
                 >
                   {d.response === "accepted"
-                    ? "Accepted"
+                    ? t("donor_accepted_status")
                     : d.response === "declined"
-                    ? "Declined"
-                    : "Awaiting response"}
+                    ? t("donor_declined_status")
+                    : t("donor_awaiting_status")}
                 </span>
                 {d.totalDonations > 0 && (
-                  <> · Helped {d.totalDonations} {d.totalDonations === 1 ? "time" : "times"} before</>
+                  <> &middot; {t("helped_before")} {d.totalDonations} {t("times_before")}</>
                 )}
               </div>
             </div>
             {d.phone && (
-              <a
-                href={`tel:${d.phone}`}
+              <a href={"tel:" + d.phone}
                 className="btn btn-primary text-sm !py-1.5 !px-3 whitespace-nowrap"
               >
-                Call {d.phone}
+                {t("call_word")} {d.phone}
               </a>
             )}
           </div>
