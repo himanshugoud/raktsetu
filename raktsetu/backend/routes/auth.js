@@ -5,6 +5,7 @@ import crypto from "crypto";
 import Donor from "../models/Donor.js";
 import { BLOOD_TYPES } from "../utils/compatibility.js";
 import { sendPasswordResetEmail } from "../utils/mailer.js";
+import { reverseGeocode } from "../utils/geocode.js";
 
 const router = express.Router();
 
@@ -49,7 +50,8 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ message: "An account with this email already exists." });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
+        const hashed = await bcrypt.hash(password, 10);
+    const areaName = await reverseGeocode(latitude, longitude);
 
     const donor = await Donor.create({
       name,
@@ -58,6 +60,7 @@ router.post("/register", async (req, res) => {
       phone,
       bloodType,
       city,
+      areaName,
       location: { type: "Point", coordinates: [Number(longitude), Number(latitude)] },
     });
 

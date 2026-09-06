@@ -141,11 +141,12 @@ async function matchAndNotify(request, requestedRadiusKm) {
   request.searchRadiusKm = radiusUsed;
   await request.save();
 
-  const matched = donors.map((d, i) => ({
+   const matched = donors.map((d, i) => ({
     _id: d._id,
     name: d.name,
     bloodType: d.bloodType,
     city: d.city,
+    areaName: d.areaName,
     phone: d.phone,
     totalDonations: d.totalDonations,
     distanceKm: Math.round(notified[i].distanceKm * 10) / 10,
@@ -164,7 +165,7 @@ router.get("/", requireAuth, async (req, res) => {
 router.get("/:id", requireAuth, async (req, res) => {
   const request = await BloodRequest.findById(req.params.id)
     .populate("requestedBy", "name phone")
-    .populate("notifiedDonors.donor", "name phone bloodType totalDonations");
+       .populate("notifiedDonors.donor", "name phone bloodType totalDonations areaName");
   if (!request) return res.status(404).json({ message: "Request not found." });
 
   const isRequester = String(request.requestedBy?._id) === String(req.donorId);
@@ -177,11 +178,12 @@ router.get("/:id", requireAuth, async (req, res) => {
     // on someone to check email.
     payload.notifiedDonors = [...payload.notifiedDonors]
       .sort((a, b) => a.distanceKm - b.distanceKm)
-      .map((n) => ({
+            .map((n) => ({
         donorId: n.donor?._id,
         name: n.donor?.name,
         phone: n.donor?.phone,
         bloodType: n.donor?.bloodType,
+        areaName: n.donor?.areaName,
         totalDonations: n.donor?.totalDonations || 0,
         distanceKm: n.distanceKm,
         response: n.response,

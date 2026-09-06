@@ -2,6 +2,7 @@ import express from "express";
 import Donor from "../models/Donor.js";
 import BloodRequest from "../models/BloodRequest.js";
 import requireAuth from "../middleware/auth.js";
+import { reverseGeocode } from "../utils/geocode.js";
 
 const router = express.Router();
 
@@ -46,10 +47,11 @@ router.patch("/me/location", requireAuth, async (req, res) => {
   if (latitude === undefined || longitude === undefined) {
     return res.status(400).json({ message: "Latitude and longitude are required." });
   }
-  const donor = await Donor.findByIdAndUpdate(
+    const donor = await Donor.findByIdAndUpdate(
     req.donorId,
     {
       location: { type: "Point", coordinates: [Number(longitude), Number(latitude)] },
+      areaName: await reverseGeocode(latitude, longitude),
       ...(city ? { city } : {}),
     },
     { new: true }

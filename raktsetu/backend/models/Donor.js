@@ -24,9 +24,15 @@ const donorSchema = new mongoose.Schema(
       },
     },
 
-        available: { type: Boolean, default: true },
+            available: { type: Boolean, default: true },
     lastDonationDate: { type: Date, default: null },
     totalDonations: { type: Number, default: 0 },
+
+    // Human-readable neighbourhood/locality, filled in via reverse geocoding
+    // when the donor registers or updates their location. Null if the
+    // geocoding lookup failed or hasn't run yet — always optional, never
+    // required, so this can never block registration.
+    areaName: { type: String, default: null },
 
     resetPasswordTokenHash: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },

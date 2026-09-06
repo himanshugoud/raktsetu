@@ -153,8 +153,9 @@ export default function CreateRequest() {
                 <div>
                   <span className="font-medium text-sm">{d.name}</span>
                   <span className="text-xs text-[var(--color-ink-faint)] ml-2 font-mono">{d.bloodType}</span>
-                  <div className="text-xs text-[var(--color-ink-muted)] mt-0.5">
+                                    <div className="text-xs text-[var(--color-ink-muted)] mt-0.5">
                     {d.distanceKm} {t("km_away")}
+                    {d.areaName && <> &middot; {t("near_word")} {d.areaName}</>}
                     {d.totalDonations > 0 && <> · {t("helped_before")} {d.totalDonations} {t("times_before")}</>}
                   </div>
                 </div>

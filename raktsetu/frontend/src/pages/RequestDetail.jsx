@@ -169,8 +169,9 @@ function NotifiedDonorsList({ donors, t }) {
                 </span>
                 <span className="font-medium text-sm">{d.name}</span>
               </div>
-              <div className="text-xs text-[var(--color-ink-faint)] mt-0.5">
-                {d.distanceKm.toFixed(1)} {t("km_away")} &middot;{" "}
+                            <div className="text-xs text-[var(--color-ink-faint)] mt-0.5">
+                {d.distanceKm.toFixed(1)} {t("km_away")}
+                {d.areaName && <> &middot; {t("near_word")} {d.areaName}</>} &middot;{" "}
                 <span
                   className={
                     d.response === "accepted"

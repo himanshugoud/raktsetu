@@ -135,7 +135,8 @@ const strings = {
   helped_before: { en: "Helped", hi: "मदद की" },
   times_before: { en: "time(s) before", hi: "बार पहले" },
   call_word: { en: "Call", hi: "कॉल करें" },
-  km_away: { en: "km away", hi: "किमी दूर" },
+    km_away: { en: "km away", hi: "किमी दूर" },
+  near_word: { en: "near", hi: "के पास" },
 
   // Dashboard page
   dashboard_eyebrow: { en: "Your dashboard", hi: "आपका डैशबोर्ड" },

@@ -130,6 +130,8 @@ Visit `http://localhost:5173`.
 
 > **Demo email limitation:** on Resend's free tier, without a verified domain, donor alert emails only deliver to the address you signed up with — not to arbitrary donor emails. This is why the requester-facing call list exists as the primary channel rather than a fallback; email is a bonus, not a dependency. Verify a domain at [resend.com/domains](https://resend.com/domains) to send to real donors.
 
+> **Locality name limitation:** donor locality names (e.g. "near Indrapuri Colony") are generated via free reverse geocoding (OpenStreetMap/Nominatim), which has uneven coverage of small residential areas in India. It occasionally shows a nearby named place rather than the exact colony — a known tradeoff of using free, crowd-sourced map data instead of a paid geocoding API.
+
 ## Author
 
 Himanshu Goud

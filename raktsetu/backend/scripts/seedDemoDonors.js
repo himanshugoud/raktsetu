@@ -11,6 +11,7 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import Donor from "../models/Donor.js";
+import { reverseGeocode } from "../utils/geocode.js";
 
 // Fixed demo center: India Gate, New Delhi. Chosen because it's a
 // recognizable, neutral public landmark — not anyone's real address.
@@ -40,10 +41,16 @@ async function seed() {
 
   const hashed = await bcrypt.hash(DEMO_PASSWORD, 10);
 
-  for (let i = 0; i < DEMO_DONORS.length; i++) {
+   for (let i = 0; i < DEMO_DONORS.length; i++) {
     const d = DEMO_DONORS[i];
     const email = `demo.donor${i + 1}@example.com`; // reserved non-deliverable domain (RFC 2606)
     const phone = `+91 90000 000${String(i + 1).padStart(2, "0")}`; // clearly fake, sequential
+
+    // Real reverse geocoding (same code path real donors go through), so
+    // the demo data shows genuine locality names, not guessed ones.
+    // Nominatim's usage policy asks for max ~1 request/second, hence the delay.
+    const areaName = await reverseGeocode(d.lat, d.lon);
+    if (i < DEMO_DONORS.length - 1) await new Promise((r) => setTimeout(r, 1100));
 
     await Donor.findOneAndUpdate(
       { email },
@@ -54,6 +61,7 @@ async function seed() {
         phone,
         bloodType: d.bloodType,
         city: "New Delhi (Demo)",
+        areaName,
         location: { type: "Point", coordinates: [d.lon, d.lat] },
         available: true,
         totalDonations: d.totalDonations,
@@ -61,7 +69,7 @@ async function seed() {
       },
       { upsert: true, new: true }
     );
-    console.log(`Seeded: ${d.name} (${d.bloodType})`);
+    console.log(`Seeded: ${d.name} (${d.bloodType})${areaName ? " — near " + areaName : ""}`);
   }
 
   console.log("Done. Demo donors are live in the database.");
