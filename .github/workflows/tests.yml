@@ -1,0 +1,36 @@
+name: Backend Tests
+
+# Runs the backend's automated test suite on every push and pull request
+# targeting main. These tests are pure logic (ABO/Rh compatibility matrix,
+# geo-distance/radius-escalation) with no database or secrets required,
+# so this workflow needs no configuration beyond checking out the code.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: raktsetu/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: raktsetu/backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test

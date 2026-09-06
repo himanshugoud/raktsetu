@@ -4,7 +4,7 @@
 
 🔴 **Live demo:** [raktsetu-phi.vercel.app](https://raktsetu-phi.vercel.app) — try it instantly with the **"Use a demo location instead"** link on the request form, no GPS or account setup required.
 
-[![Tests](https://img.shields.io/badge/tests-17%20passing-brightgreen)](#testing)
+[![Backend Tests](https://github.com/himanshugoud/raktsetu/actions/workflows/tests.yml/badge.svg)](https://github.com/himanshugoud/raktsetu/actions/workflows/tests.yml)
 [![Frontend](https://img.shields.io/badge/frontend-React%20%2B%20Vite-blue)](#tech-stack)
 [![Backend](https://img.shields.io/badge/backend-Node%20%2B%20Express-blue)](#tech-stack)
 
