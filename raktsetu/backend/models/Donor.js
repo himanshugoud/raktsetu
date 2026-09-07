@@ -24,7 +24,7 @@ const donorSchema = new mongoose.Schema(
       },
     },
 
-            available: { type: Boolean, default: true },
+    available: { type: Boolean, default: true },
     lastDonationDate: { type: Date, default: null },
     totalDonations: { type: Number, default: 0 },
 
@@ -34,6 +34,22 @@ const donorSchema = new mongoose.Schema(
     // required, so this can never block registration.
     areaName: { type: String, default: null },
 
+    // Web Push subscriptions (one per browser/device the donor has enabled
+    // notifications on). Each is exactly what the browser's PushManager
+    // returns — endpoint + encryption keys — nothing else.
+    pushSubscriptions: {
+      type: [
+        {
+          endpoint: { type: String, required: true },
+          keys: {
+            p256dh: { type: String, required: true },
+            auth: { type: String, required: true },
+          },
+        },
+      ],
+      default: [],
+    },
+
     resetPasswordTokenHash: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
   },
@@ -42,10 +58,12 @@ const donorSchema = new mongoose.Schema(
 
 donorSchema.index({ location: "2dsphere" });
 
-// Never send the password hash back to the client
+// Never send the password hash — or push subscription details, which
+// are effectively per-device tracking identifiers — back to the client.
 donorSchema.set("toJSON", {
   transform: (_doc, ret) => {
     delete ret.password;
+    delete ret.pushSubscriptions;
     return ret;
   },
 });

@@ -25,7 +25,7 @@ const strings = {
   // Home — vitals strip
   vital_blood_types: { en: "Blood types tracked", hi: "रक्त समूह कवर किए गए" },
   vital_radius: { en: "Match radius", hi: "मिलान दायरा" },
-   vital_alert_time: { en: "Avg. alert time", hi: "औसत सूचना समय" },
+  vital_alert_time: { en: "Avg. alert time", hi: "औसत सूचना समय" },
   vital_registered_donors: { en: "Registered donors", hi: "पंजीकृत दाता" },
 
   // Home — how it works
@@ -59,7 +59,7 @@ const strings = {
     en: "Registration takes under two minutes. You choose when you're available — toggle it off anytime.",
     hi: "पंजीकरण में दो मिनट से भी कम समय लगता है। आप तय करते हैं कि कब उपलब्ध रहना है — कभी भी इसे बंद करें।",
   },
-    home_cta_join: { en: "Join as a donor", hi: "दाता के रूप में जुड़ें" },
+  home_cta_join: { en: "Join as a donor", hi: "दाता के रूप में जुड़ें" },
 
   // Shared field labels
   field_email: { en: "Email", hi: "ईमेल" },
@@ -135,7 +135,7 @@ const strings = {
   helped_before: { en: "Helped", hi: "मदद की" },
   times_before: { en: "time(s) before", hi: "बार पहले" },
   call_word: { en: "Call", hi: "कॉल करें" },
-    km_away: { en: "km away", hi: "किमी दूर" },
+  km_away: { en: "km away", hi: "किमी दूर" },
   near_word: { en: "near", hi: "के पास" },
 
   // Dashboard page
@@ -166,7 +166,7 @@ const strings = {
   status_pending: { en: "Pending", hi: "लंबित" },
   status_donors_notified: { en: "Donors notified", hi: "दाताओं को सूचित किया गया" },
   status_fulfilled: { en: "Fulfilled", hi: "पूरा हुआ" },
-   status_expired: { en: "Expired", hi: "समाप्त" },
+  status_expired: { en: "Expired", hi: "समाप्त" },
 
   // RequestDetail page
   row_patient: { en: "Patient", hi: "मरीज़" },
@@ -282,6 +282,15 @@ const strings = {
     en: "You're in your post-donation recovery window and won't be matched to new requests until it ends.",
     hi: "आप अपनी दान-पश्चात रिकवरी अवधि में हैं और इसके समाप्त होने तक नए अनुरोधों से मेल नहीं खाएंगे।",
   },
+
+  // Push notifications
+  push_enable: { en: "Enable push alerts", hi: "पुश सूचनाएं चालू करें" },
+  push_enabled: { en: "✓ Push alerts on", hi: "✓ पुश सूचनाएं चालू हैं" },
+  push_disable: { en: "Turn off push alerts", hi: "पुश सूचनाएं बंद करें" },
+  push_enabling: { en: "Enabling…", hi: "चालू हो रहा है…" },
+  push_unsupported: { en: "Push notifications aren't supported in this browser.", hi: "इस ब्राउज़र में पुश सूचनाएं समर्थित नहीं हैं।" },
+  push_permission_denied: { en: "Notification permission was denied. Enable it in your browser settings to turn this on.", hi: "सूचना अनुमति अस्वीकार कर दी गई। इसे चालू करने के लिए अपने ब्राउज़र सेटिंग्स में अनुमति दें।" },
+  push_generic_error: { en: "Couldn't enable push alerts. Please try again.", hi: "पुश सूचनाएं चालू नहीं हो सकीं। कृपया फिर से प्रयास करें।" },
 };
 
 export default strings;

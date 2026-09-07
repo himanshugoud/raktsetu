@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import client from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
+import { getExistingPushSubscription, subscribeToPush, unsubscribeFromPush, isPushSupported } from "../utils/push.js";
 
 const STATUS_BADGE = {
   pending: "badge-muted",
@@ -20,6 +21,10 @@ export default function Dashboard() {
   const [updatingLocation, setUpdatingLocation] = useState(false);
   const [locationMessage, setLocationMessage] = useState("");
 
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState("");
+
   const STATUS_LABEL = {
     pending: t("status_pending"),
     donors_notified: t("status_donors_notified"),
@@ -35,6 +40,13 @@ export default function Dashboard() {
       .finally(() => setLoadingHistory(false));
   }, []);
 
+  useEffect(() => {
+    if (!isPushSupported()) return;
+    getExistingPushSubscription()
+      .then((sub) => setPushEnabled(!!sub))
+      .catch(() => {});
+  }, []);
+
   async function toggleAvailability() {
     setToggling(true);
     try {
@@ -47,7 +59,7 @@ export default function Dashboard() {
 
   function updateLocation() {
     if (!navigator.geolocation) {
-            setLocationMessage(t("err_geo_unsupported_dashboard"));
+      setLocationMessage(t("err_geo_unsupported_dashboard"));
       return;
     }
     setUpdatingLocation(true);
@@ -60,19 +72,58 @@ export default function Dashboard() {
             longitude: pos.coords.longitude,
           });
           updateDonor(res.data);
-                   setLocationMessage(t("location_updated_success"));
-               } catch {
+          setLocationMessage(t("location_updated_success"));
+        } catch {
           setLocationMessage(t("err_location_save_failed"));
         } finally {
           setUpdatingLocation(false);
         }
       },
       () => {
-             setLocationMessage(t("err_location_get_failed"));
+        setLocationMessage(t("err_location_get_failed"));
         setUpdatingLocation(false);
       },
       { enableHighAccuracy: true, timeout: 20000 }
     );
+  }
+
+  async function handleEnablePush() {
+    setPushError("");
+    if (!isPushSupported()) {
+      setPushError(t("push_unsupported"));
+      return;
+    }
+    setPushBusy(true);
+    try {
+      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      const subscription = await subscribeToPush(vapidPublicKey);
+      await client.post("/donors/me/push-subscribe", subscription.toJSON());
+      setPushEnabled(true);
+    } catch (err) {
+      if (err.message && err.message.includes("permission")) {
+        setPushError(t("push_permission_denied"));
+      } else {
+        setPushError(t("push_generic_error"));
+      }
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
+  async function handleDisablePush() {
+    setPushBusy(true);
+    setPushError("");
+    try {
+      const endpoint = await unsubscribeFromPush();
+      if (endpoint) {
+        await client.delete("/donors/me/push-subscribe", { data: { endpoint } });
+      }
+      setPushEnabled(false);
+    } catch {
+      setPushError(t("push_generic_error"));
+    } finally {
+      setPushBusy(false);
+    }
   }
 
   if (!donor) return null;
@@ -97,7 +148,7 @@ export default function Dashboard() {
             <div className="font-medium">{donor.name}</div>
             <div className="text-sm text-[var(--color-ink-muted)]">{donor.city} · {donor.phone}</div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {donor.inCooldown ? (
               <span className="badge badge-amber">
                 {t("resting_until")} {new Date(donor.eligibleAgainAt).toLocaleDateString()}
@@ -110,7 +161,7 @@ export default function Dashboard() {
             <button
               onClick={toggleAvailability}
               disabled={toggling || donor.inCooldown}
-                           title={donor.inCooldown ? t("cooldown_tooltip") : undefined}
+              title={donor.inCooldown ? t("cooldown_tooltip") : undefined}
               className="btn btn-secondary text-sm !py-1.5 !px-3 disabled:opacity-60"
             >
               {toggling ? t("btn_updating") : donor.available ? t("btn_turn_off") : t("btn_turn_on")}
@@ -122,6 +173,13 @@ export default function Dashboard() {
             >
               {updatingLocation ? t("btn_updating") : t("btn_update_location")}
             </button>
+            <button
+              onClick={pushEnabled ? handleDisablePush : handleEnablePush}
+              disabled={pushBusy}
+              className="btn btn-secondary text-sm !py-1.5 !px-3 disabled:opacity-60"
+            >
+              {pushBusy ? t("push_enabling") : pushEnabled ? t("push_enabled") : t("push_enable")}
+            </button>
           </div>
         </div>
         {donor.inCooldown && (
@@ -131,6 +189,9 @@ export default function Dashboard() {
         )}
         {locationMessage && (
           <p className="text-xs text-[var(--color-ink-muted)] mt-3">{locationMessage}</p>
+        )}
+        {pushError && (
+          <p className="text-xs text-[var(--color-crimson-600)] mt-3">{pushError}</p>
         )}
       </div>
 

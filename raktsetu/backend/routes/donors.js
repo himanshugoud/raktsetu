@@ -47,7 +47,7 @@ router.patch("/me/location", requireAuth, async (req, res) => {
   if (latitude === undefined || longitude === undefined) {
     return res.status(400).json({ message: "Latitude and longitude are required." });
   }
-    const donor = await Donor.findByIdAndUpdate(
+  const donor = await Donor.findByIdAndUpdate(
     req.donorId,
     {
       location: { type: "Point", coordinates: [Number(longitude), Number(latitude)] },
@@ -81,6 +81,37 @@ router.get("/me/history", requireAuth, async (req, res) => {
   });
 
   res.json(history);
+});
+
+// POST save a push subscription for the logged-in donor. Called once
+// per browser/device when they enable notifications. Safe to call
+// repeatedly — subscriptions are deduped by endpoint.
+router.post("/me/push-subscribe", requireAuth, async (req, res) => {
+  const { endpoint, keys } = req.body;
+  if (!endpoint || !keys?.p256dh || !keys?.auth) {
+    return res.status(400).json({ message: "Invalid push subscription." });
+  }
+
+  const donor = await Donor.findById(req.donorId);
+  if (!donor) return res.status(404).json({ message: "Donor not found." });
+
+  const alreadySaved = donor.pushSubscriptions.some((s) => s.endpoint === endpoint);
+  if (!alreadySaved) {
+    donor.pushSubscriptions.push({ endpoint, keys });
+    await donor.save();
+  }
+
+  res.json({ message: "Push notifications enabled." });
+});
+
+// DELETE remove a push subscription (donor turning notifications back off
+// on this device, or the browser reporting the subscription is stale)
+router.delete("/me/push-subscribe", requireAuth, async (req, res) => {
+  const { endpoint } = req.body;
+  await Donor.findByIdAndUpdate(req.donorId, {
+    $pull: { pushSubscriptions: { endpoint } },
+  });
+  res.json({ message: "Push notifications disabled." });
 });
 
 export default router;

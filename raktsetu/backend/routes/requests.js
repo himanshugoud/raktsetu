@@ -6,6 +6,7 @@ import requireAuth from "../middleware/auth.js";
 import { compatibleDonorTypes, BLOOD_TYPES } from "../utils/compatibility.js";
 import { distanceKm, buildRadiusSteps } from "../utils/geo.js";
 import { sendUrgentAlert } from "../utils/mailer.js";
+import { sendPushToDonor } from "../utils/push.js";
 
 const router = express.Router();
 
@@ -124,6 +125,16 @@ async function matchAndNotify(request, requestedRadiusKm) {
       distanceKm: km,
     });
 
+    // Push doesn't depend on Resend's domain restriction at all, so unlike
+    // email it works for every real donor right now, not just the project's
+    // own inbox. It's still a bonus channel, though — never required.
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    await sendPushToDonor(donor, {
+      title: `Urgent: ${request.bloodType} needed nearby`,
+      body: `${request.hospitalName} \u00b7 ${km.toFixed(1)} km away`,
+      url: `${clientUrl}/requests/${request._id}`,
+    });
+
     notified.push({
       donor: donor._id,
       distanceKm: km,
@@ -141,7 +152,7 @@ async function matchAndNotify(request, requestedRadiusKm) {
   request.searchRadiusKm = radiusUsed;
   await request.save();
 
-   const matched = donors.map((d, i) => ({
+  const matched = donors.map((d, i) => ({
     _id: d._id,
     name: d.name,
     bloodType: d.bloodType,
@@ -165,7 +176,7 @@ router.get("/", requireAuth, async (req, res) => {
 router.get("/:id", requireAuth, async (req, res) => {
   const request = await BloodRequest.findById(req.params.id)
     .populate("requestedBy", "name phone")
-       .populate("notifiedDonors.donor", "name phone bloodType totalDonations areaName");
+    .populate("notifiedDonors.donor", "name phone bloodType totalDonations areaName");
   if (!request) return res.status(404).json({ message: "Request not found." });
 
   const isRequester = String(request.requestedBy?._id) === String(req.donorId);
@@ -178,7 +189,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     // on someone to check email.
     payload.notifiedDonors = [...payload.notifiedDonors]
       .sort((a, b) => a.distanceKm - b.distanceKm)
-            .map((n) => ({
+      .map((n) => ({
         donorId: n.donor?._id,
         name: n.donor?.name,
         phone: n.donor?.phone,
