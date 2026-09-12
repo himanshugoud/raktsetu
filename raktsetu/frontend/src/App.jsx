@@ -16,12 +16,21 @@ import NotFound from "./pages/NotFound.jsx";
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Invisible until focused (Tab key) — lets keyboard/screen-reader users
+          jump straight past the navbar instead of tabbing through it on
+          every single page. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-[var(--color-crimson-500)] focus:text-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
+      >
+        Skip to main content
+      </a>
       <SlowServerBanner />
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-                    <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />

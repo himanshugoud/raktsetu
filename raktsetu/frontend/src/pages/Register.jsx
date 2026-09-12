@@ -127,7 +127,7 @@ export default function Register() {
         </div>
 
         {error && (
-          <p className="text-sm text-[var(--color-crimson-600)] bg-[var(--color-crimson-50)] rounded-lg px-3 py-2">
+          <p role="alert" className="text-sm text-[var(--color-crimson-600)] bg-[var(--color-crimson-50)] rounded-lg px-3 py-2">
             {error}
           </p>
         )}

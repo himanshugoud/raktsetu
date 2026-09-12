@@ -43,7 +43,11 @@ export default function CompatibilityGrid() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+      <div
+        className="grid grid-cols-4 sm:grid-cols-8 gap-2"
+        role="group"
+        aria-label={`Donor compatibility for a ${recipient} patient`}
+      >
         {BLOOD_TYPES.map((type) => {
           const isMatch = donors.includes(type);
           const isSelf = type === recipient;
@@ -57,6 +61,11 @@ export default function CompatibilityGrid() {
               }`}
             >
               {type}
+              {/* Match/no-match is otherwise shown only through color and
+                  opacity — this makes the same information available to
+                  screen readers (and doesn't rely on the user distinguishing
+                  the two shades of color). */}
+              <span className="sr-only">, {isMatch ? "compatible donor" : "not compatible"}</span>
               {isSelf && (
                 <span className="absolute -top-2 -right-2 badge badge-crimson !px-1.5 !py-0.5 text-[10px]">
                   needs
@@ -67,7 +76,7 @@ export default function CompatibilityGrid() {
         })}
       </div>
 
-      <p className="mt-5 text-sm text-[var(--color-ink-muted)]">
+      <p className="mt-5 text-sm text-[var(--color-ink-muted)]" aria-live="polite">
         <span className="font-medium text-[var(--color-vital-600)]">{donors.length} of 8 types</span> can
         safely donate to a <span className="font-mono font-medium text-[var(--color-ink)]">{recipient}</span>{" "}
         patient. RaktSetu applies this exact rule set before a single alert email goes out.
