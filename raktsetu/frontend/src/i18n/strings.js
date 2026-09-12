@@ -291,6 +291,25 @@ const strings = {
   push_unsupported: { en: "Push notifications aren't supported in this browser.", hi: "इस ब्राउज़र में पुश सूचनाएं समर्थित नहीं हैं।" },
   push_permission_denied: { en: "Notification permission was denied. Enable it in your browser settings to turn this on.", hi: "सूचना अनुमति अस्वीकार कर दी गई। इसे चालू करने के लिए अपने ब्राउज़र सेटिंग्स में अनुमति दें।" },
   push_generic_error: { en: "Couldn't enable push alerts. Please try again.", hi: "पुश सूचनाएं चालू नहीं हो सकीं। कृपया फिर से प्रयास करें।" },
+
+  // Impact page
+  nav_impact: { en: "Impact", hi: "प्रभाव" },
+  impact_eyebrow: { en: "Impact", hi: "प्रभाव" },
+  impact_headline: { en: "The numbers behind RaktSetu", hi: "रक्तसेतु के आंकड़े" },
+  impact_subtext: { en: "Real, live data from this deployment — not projections.", hi: "इस डिप्लॉयमेंट के वास्तविक, लाइव आंकड़े — अनुमान नहीं।" },
+  impact_registered_donors: { en: "Registered donors", hi: "पंजीकृत दाता" },
+  impact_requests_raised: { en: "Requests raised", hi: "अनुरोध किए गए" },
+  impact_requests_fulfilled: { en: "Requests fulfilled", hi: "पूरे किए गए अनुरोध" },
+  impact_donor_growth_title: { en: "Donor growth over time", hi: "समय के साथ दाताओं की वृद्धि" },
+  impact_donor_growth_empty: { en: "Not enough history yet to chart growth — check back as more donors join.", hi: "वृद्धि दिखाने के लिए अभी पर्याप्त इतिहास नहीं है — अधिक दाताओं के जुड़ने पर फिर देखें।" },
+  impact_status_title: { en: "Requests by status", hi: "स्थिति के अनुसार अनुरोध" },
+  status_pending: { en: "Pending", hi: "लंबित" },
+  status_donors_notified: { en: "Donors notified", hi: "दाताओं को सूचित किया गया" },
+  status_fulfilled: { en: "Fulfilled", hi: "पूरा हुआ" },
+  status_expired: { en: "Expired", hi: "समाप्त" },
+  impact_loading: { en: "Loading impact data…", hi: "प्रभाव डेटा लोड हो रहा है…" },
+  impact_error: { en: "Couldn't load impact data. Please try again later.", hi: "प्रभाव डेटा लोड नहीं हो सका। कृपया बाद में पुनः प्रयास करें।" },
+  impact_chart_donors_label: { en: "Donors", hi: "दाता" },
 };
 
 export default strings;

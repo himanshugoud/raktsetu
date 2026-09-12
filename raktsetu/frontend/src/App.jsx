@@ -4,6 +4,7 @@ import Footer from "./components/Footer.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import SlowServerBanner from "./components/SlowServerBanner.jsx";
 import Home from "./pages/Home.jsx";
+import Impact from "./pages/Impact.jsx";
 import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
@@ -30,6 +31,7 @@ export default function App() {
       <main id="main-content" className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/impact" element={<Impact />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

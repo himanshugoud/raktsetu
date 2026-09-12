@@ -30,6 +30,7 @@ export default function Navbar() {
 
                 <nav className="hidden md:flex items-center gap-7">
           <NavLink to="/" end className={linkClass}>{t("nav_home")}</NavLink>
+          <NavLink to="/impact" className={linkClass}>{t("nav_impact")}</NavLink>
           {donor && (
             <>
               <NavLink to="/dashboard" className={linkClass}>{t("nav_dashboard")}</NavLink>
