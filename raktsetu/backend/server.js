@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.js";
@@ -9,6 +10,11 @@ import requestRoutes from "./routes/requests.js";
 import statsRoutes from "./routes/stats.js";
 
 const app = express();
+
+// Sets standard security-related HTTP headers (protects against clickjacking,
+// MIME-sniffing, and a few other common attack vectors). Applied before
+// anything else so every response — including errors — gets these headers.
+app.use(helmet());
 
 app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
 app.use(express.json());
