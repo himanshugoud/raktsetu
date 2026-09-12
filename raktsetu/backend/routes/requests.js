@@ -1,5 +1,6 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
+import * as Sentry from "@sentry/node";
 import BloodRequest from "../models/BloodRequest.js";
 import Donor from "../models/Donor.js";
 import requireAuth from "../middleware/auth.js";
@@ -66,6 +67,7 @@ router.post("/", createRequestLimiter, requireAuth, async (req, res) => {
     res.status(201).json({ request, matchedDonors: matched, radiusUsedKm: radiusUsed });
   } catch (err) {
     console.error(err);
+    Sentry.captureException(err);
     res.status(500).json({ message: "Could not create request. Please try again." });
   }
 });

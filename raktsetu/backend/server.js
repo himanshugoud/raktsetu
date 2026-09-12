@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./instrument.js"; // must run before app.js is imported
 import app from "./app.js";
 import connectDB from "./config/db.js";
 

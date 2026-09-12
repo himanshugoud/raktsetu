@@ -1,7 +1,9 @@
 import express from "express";
+import "express-async-errors"; // must be imported before routes are defined
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import * as Sentry from "@sentry/node";
 import authRoutes from "./routes/auth.js";
 import donorRoutes from "./routes/donors.js";
 import requestRoutes from "./routes/requests.js";
@@ -41,7 +43,15 @@ app.use("/api/stats", statsRoutes);
 // Fallback 404
 app.use((req, res) => res.status(404).json({ message: "Route not found." }));
 
-// Central error handler
+// Sentry's error handler must come after all routes/404 handling, but
+// before our own error-handling middleware below — it reports the error
+// to Sentry, then passes it along so the response below still gets sent
+// to the client exactly as before. If SENTRY_DSN was never set, this is
+// a harmless no-op. Thanks to express-async-errors above, this now also
+// catches errors thrown by routes that don't have their own try/catch.
+Sentry.setupExpressErrorHandler(app);
+
+// Central error handler — sends the actual response to the client.
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ message: "Something went wrong on the server." });

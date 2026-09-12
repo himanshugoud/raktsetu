@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import * as Sentry from "@sentry/node";
 import Donor from "../models/Donor.js";
 import { BLOOD_TYPES } from "../utils/compatibility.js";
 import { sendPasswordResetEmail } from "../utils/mailer.js";
@@ -68,6 +69,7 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ token, donor: withEligibility(donor) });
   } catch (err) {
     console.error(err);
+    Sentry.captureException(err);
     res.status(500).json({ message: "Registration failed. Please try again." });
   }
 });
@@ -93,6 +95,7 @@ router.post("/login", async (req, res) => {
     res.json({ token, donor: withEligibility(donor) });
   } catch (err) {
     console.error(err);
+    Sentry.captureException(err);
     res.status(500).json({ message: "Login failed. Please try again." });
   }
 });
@@ -132,6 +135,7 @@ router.post("/forgot-password", async (req, res) => {
     res.json(genericResponse);
   } catch (err) {
     console.error(err);
+    Sentry.captureException(err);
     res.status(500).json({ message: "Something went wrong. Please try again." });
   }
 });
@@ -168,6 +172,7 @@ router.post("/reset-password", async (req, res) => {
     res.json({ message: "Your password has been reset. You can now log in." });
   } catch (err) {
     console.error(err);
+    Sentry.captureException(err);
     res.status(500).json({ message: "Something went wrong. Please try again." });
   }
 });
