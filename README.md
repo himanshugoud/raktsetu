@@ -32,7 +32,7 @@ A few decisions that go beyond a typical CRUD donor app:
 - **Real medical constraint modeled in the matching logic** — donors who donated within the last 90 days are automatically excluded from matching (the standard whole-blood donation gap), with a clear "Resting until [date]" status shown on their own dashboard.
 - **Auto-widening search radius** — if no donors are found at 10km, the backend automatically retries at 25km → 50km → 100km before giving up, so a request in a low-donor-density area doesn't just dead-end.
 - **Full ABO/Rh compatibility matrix**, not a simplified lookup — covers all 8 blood types and their correct multi-directional compatibility rules.
-- **17 passing automated tests** (Vitest) covering the compatibility matrix and the geo-distance/radius-escalation logic, with that logic refactored into a pure, dependency-free module (`backend/utils/geo.js`) specifically so it's unit-testable.
+- **30 passing automated tests** (Vitest) — pure-logic unit tests for the compatibility matrix and geo-distance/radius-escalation math, plus real integration tests (via `supertest` + an in-memory MongoDB) that hit live Express routes and verify the actual matching engine end-to-end: nearby-donor matching, the 90-day cooldown exclusion, blood-type compatibility filtering, and radius escalation, all against a real geospatial `$near` query.
 - **Designed around a real free-tier constraint, not around it**: Render's free backend cold-starts after inactivity, so the frontend shows a "waking up the server" banner instead of looking broken during the ~30-60s first request.
 - **Live status without polling the user's patience** — a requester's own request page checks for updates every ~10 seconds and surfaces a banner the instant a donor accepts, no manual refresh needed.
 - **Real-time browser push notifications** — donors get an OS-level push alert the moment they're matched to a request, using the Web Push API with VAPID authentication, so alerts reach every donor rather than only the project owner's inbox (a limitation of the free email tier).
@@ -86,7 +86,9 @@ raktsetu/
 │   ├── utils/        # compatibility.js (ABO/Rh matrix), geo.js (distance + radius logic),
 │   │                 # mailer.js (Resend), push.js (Web Push sender), geocode.js (reverse geocoding)
 │   ├── scripts/      # seedDemoDonors.js, generateVapidKeys.js
-│   └── server.js
+│   ├── tests/        # setup.js (in-memory MongoDB), auth + request-matching integration tests
+│   ├── app.js         # Express app (routes, middleware) — imported directly by tests
+│   └── server.js      # Connects to MongoDB, then starts app.js listening
 └── frontend/
     ├── public/sw.js       # Service worker — handles push + notification click events
     ├── src/pages/         # Home, Register, Login, Dashboard, CreateRequest, RequestDetail,
@@ -104,7 +106,17 @@ cd raktsetu/backend
 npm test
 ```
 
-17 tests covering the blood-type compatibility matrix (all 8 types, both directions) and the geo-distance/radius-escalation logic, run both locally and against the deployed build via GitHub Actions on every push.
+**30 tests across two layers:**
+
+- **Unit tests** — the blood-type compatibility matrix (all 8 types, both directions) and the geo-distance/radius-escalation math, tested as pure, dependency-free functions.
+- **Integration tests** (`supertest` + an in-memory MongoDB via `mongodb-memory-server`) — real HTTP requests against the actual Express app and a real (temporary) MongoDB instance, covering:
+  - Registration and login, including duplicate-email and invalid-credential rejection
+  - Creating a blood request and matching it to a real nearby donor via an actual `$near` geospatial query
+  - The 90-day donation cooldown correctly excluding recently-donated donors from matching
+  - Blood-type compatibility filtering during matching
+  - Automatic radius escalation when no donor is found at the requested radius
+
+All 30 tests run both locally and against the deployed build via GitHub Actions on every push.
 
 ## Try the donor side too
 
