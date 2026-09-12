@@ -38,6 +38,10 @@ A few decisions that go beyond a typical CRUD donor app:
 - **Real-time browser push notifications** — donors get an OS-level push alert the moment they're matched to a request, using the Web Push API with VAPID authentication, so alerts reach every donor rather than only the project owner's inbox (a limitation of the free email tier).
 - **Bilingual from the ground up** — full Hindi/English UI toggle covering every page and error message, including handling a Devanagari line-height rendering bug that only shows up with certain conjunct characters.
 - **Human-readable donor locations** — reverse geocoding turns raw coordinates into locality names (e.g. "near Indrapuri Colony") shown on match results, rather than showing users a raw lat/long.
+- **Production error visibility, not silent failures** — Sentry captures every server-side error automatically, including from routes that don't have their own `try/catch` (via an `express-async-errors` safety net that forwards otherwise-unhandled async errors instead of letting them hang or crash the process).
+- **Standard security headers via Helmet.js** — protects against clickjacking, MIME-sniffing, and a handful of other common HTTP-level attack vectors, verified live in production response headers.
+- **An actual accessibility pass, not just a claim** — a skip-to-content link for keyboard users, a form-input focus ring that was silently broken by a CSS specificity bug (found and fixed), `role="alert"` on every form error so screen readers announce failures immediately, and a compatibility grid that no longer relies on color alone to show which blood types match.
+- **A real impact page**, not a static screenshot — donor growth over time and a request-status breakdown, both charted from live aggregation queries against the actual database, not hardcoded numbers.
 
 ## Features
 
@@ -63,15 +67,20 @@ A few decisions that go beyond a typical CRUD donor app:
 - SPA routing that survives a hard refresh on Vercel
 - Full Hindi/English language toggle across the entire app
 - Live homepage donor count pulled from a real `/api/stats` endpoint (not a fabricated number)
+- A public **Impact page** (`/impact`) charting donor growth over time and requests by status, backed by real database aggregation
+- Skip-to-content link, screen-reader-announced form errors, and a compatibility grid that doesn't rely on color alone
+- Server-side error monitoring via Sentry, covering both handled and otherwise-unhandled route errors
 
 ## Tech Stack
 
-- **Frontend:** React, Vite, Tailwind CSS
+- **Frontend:** React, Vite, Tailwind CSS, Recharts (impact page charts)
 - **Backend:** Node.js, Express, MongoDB (Mongoose) with 2dsphere geospatial indexing
+- **Security:** Helmet.js (HTTP security headers), `express-rate-limit`, `express-async-errors` (safety net for unhandled async route errors)
+- **Error Monitoring:** Sentry
 - **Email:** Resend API
 - **Push Notifications:** Web Push API (`web-push` npm package) with VAPID authentication, backed by a service worker
 - **Geocoding:** OpenStreetMap Nominatim (reverse geocoding for donor locality names)
-- **Testing:** Vitest (17 tests, backend logic)
+- **Testing:** Vitest — unit tests plus `supertest` + `mongodb-memory-server` integration tests
 - **CI:** GitHub Actions — backend test suite runs on every push
 - **Hosting:** Vercel (frontend), Render (backend), MongoDB Atlas (database)
 
@@ -81,17 +90,18 @@ A few decisions that go beyond a typical CRUD donor app:
 raktsetu/
 ├── backend/
 │   ├── models/       # Donor (incl. pushSubscriptions), BloodRequest (2dsphere geo index)
-│   ├── routes/       # auth, donors (incl. push subscribe/unsubscribe), requests (geo-matching + radius escalation)
+│   ├── routes/       # auth, donors (incl. push subscribe/unsubscribe), requests (geo-matching + radius escalation), stats
 │   ├── middleware/   # JWT auth guard
 │   ├── utils/        # compatibility.js (ABO/Rh matrix), geo.js (distance + radius logic),
 │   │                 # mailer.js (Resend), push.js (Web Push sender), geocode.js (reverse geocoding)
 │   ├── scripts/      # seedDemoDonors.js, generateVapidKeys.js
 │   ├── tests/        # setup.js (in-memory MongoDB), auth + request-matching integration tests
+│   ├── instrument.js  # Sentry initialization — loaded before the app via `node --import`
 │   ├── app.js         # Express app (routes, middleware) — imported directly by tests
 │   └── server.js      # Connects to MongoDB, then starts app.js listening
 └── frontend/
     ├── public/sw.js       # Service worker — handles push + notification click events
-    ├── src/pages/         # Home, Register, Login, Dashboard, CreateRequest, RequestDetail,
+    ├── src/pages/         # Home, Impact, Register, Login, Dashboard, CreateRequest, RequestDetail,
     │                       # ForgotPassword, ResetPassword
     ├── src/components/    # Navbar, Footer, CompatibilityGrid, PulseLine, SlowServerBanner
     ├── src/context/       # AuthContext (JWT session), LanguageContext (Hindi/English)
@@ -141,6 +151,7 @@ git clone https://github.com/himanshugoud/raktsetu.git
 cd raktsetu/backend
 npm install
 cp .env.example .env   # fill in MONGO_URI, JWT_SECRET, RESEND_API_KEY, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT
+                        # SENTRY_DSN is optional — see note below
 npm run dev
 ```
 
@@ -166,6 +177,8 @@ Visit `http://localhost:5173`.
 > **Locality name limitation:** donor locality names (e.g. "near Indrapuri Colony") are generated via free reverse geocoding (OpenStreetMap/Nominatim), which has uneven coverage of small residential areas in India. It occasionally shows a nearby named place rather than the exact colony — a known tradeoff of using free, crowd-sourced map data instead of a paid geocoding API.
 
 > **Deploying push notifications on Vercel:** if you add `VITE_VAPID_PUBLIC_KEY` as a Vercel environment variable, use the **"Config"** type, not "Secret". Vercel warns that any `VITE_`-prefixed variable gets exposed to the browser (which is expected — Vite bakes these into the client build), and "Secret" type doesn't reflect that. Since a VAPID *public* key is meant to be public, "Config" is the correct type and clears the warning. Remember to trigger a redeploy afterward — Vite only reads env vars at build time, so a running deployment won't pick up a newly added variable until it's rebuilt.
+
+> **Error monitoring is optional locally:** `SENTRY_DSN` is not required to run the project — if it's unset, `instrument.js` logs a message and skips Sentry entirely rather than failing. Get a free DSN at [sentry.io](https://sentry.io) if you want error capture during local development too.
 
 ## Author
 
