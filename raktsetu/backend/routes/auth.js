@@ -39,6 +39,9 @@ router.post("/register", async (req, res) => {
     if (!name || !email || !password || !phone || !bloodType || !city) {
       return res.status(400).json({ message: "All fields are required." });
     }
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
+    }
     if (!BLOOD_TYPES.includes(bloodType)) {
       return res.status(400).json({ message: "Invalid blood type." });
     }
@@ -68,6 +71,14 @@ router.post("/register", async (req, res) => {
     const token = signToken(donor);
     res.status(201).json({ token, donor: withEligibility(donor) });
   } catch (err) {
+    // A duplicate key error here means two registrations for the same
+    // email landed at almost the exact same moment — the findOne check
+    // above can't catch that race, but the database's unique index on
+    // email always will. Report it the same friendly way as the normal
+    // duplicate-email check above, instead of a generic 500.
+    if (err.code === 11000) {
+      return res.status(409).json({ message: "An account with this email already exists." });
+    }
     console.error(err);
     Sentry.captureException(err);
     res.status(500).json({ message: "Registration failed. Please try again." });

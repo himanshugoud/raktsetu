@@ -20,7 +20,12 @@ const app = express();
 // anything else so every response — including errors — gets these headers.
 app.use(helmet());
 
-app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
+// If CLIENT_URL is ever missing in production, this should fail closed
+// (block requests, obvious and noisy) rather than fail open by falling
+// back to "*" (silently accept requests from any website). Localhost is
+// the only safe default, since it only matters for local development.
+const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+app.use(cors({ origin: allowedOrigin }));
 app.use(express.json());
 
 // Basic abuse protection — generous enough to never bother a real person,
